@@ -58,7 +58,7 @@ def make_depreciation_entry(asset_name, date=None):
 			je.remark = "Depreciation Entry against {0} worth {1}".format(asset_name, d.depreciation_amount)
 
 			credit_account, debit_account = get_credit_and_debit_accounts(accumulated_depreciation_account, depreciation_expense_account)
-			# day la comment
+			# day la comment hello Cuong
 			credit_entry = {
 				"account": credit_account,
 				"credit_in_account_currency": d.depreciation_amount,
