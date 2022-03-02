@@ -62,16 +62,16 @@ def make_depreciation_entry(asset_name, date=None):
 			credit_entry = {
 				"account": credit_account,
 				"credit_in_account_currency": d.depreciation_amount,
-				"reference_type": "Asset",
-				"reference_name": d.name,
+				"reference_type": "CongCu_Asset",
+				"reference_name": asset.name,
 				"cost_center": depreciation_cost_center
 			}
 
 			debit_entry = {
 				"account": debit_account,
 				"debit_in_account_currency": d.depreciation_amount,
-				"reference_type": "Asset",
-				"reference_name": d.name,
+				"reference_type": "CongCu_Asset",
+				"reference_name": asset.name,
 				"cost_center": depreciation_cost_center
 			}
 
@@ -105,7 +105,7 @@ def make_depreciation_entry(asset_name, date=None):
 			frappe.msgprint("Sau db_set ")
 
 			idx = cint(d.finance_book_id)
-			frappe.msgprint("Index "+idx)
+
 			finance_books = asset.get('finance_books')[idx - 1]
 			finance_books.value_after_depreciation -= d.depreciation_amount
 			finance_books.db_update()
