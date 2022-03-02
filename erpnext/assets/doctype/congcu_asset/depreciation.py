@@ -75,7 +75,6 @@ def make_depreciation_entry(asset_name, date=None):
 				"cost_center": depreciation_cost_center
 			}
 
-			frappe.msgprint("Truoc vong for "+debit_account+" credit "+credit_account )
 			for dimension in accounting_dimensions:
 				if (asset.get(dimension['fieldname']) or dimension.get('mandatory_for_bs')):
 					credit_entry.update({
@@ -86,7 +85,7 @@ def make_depreciation_entry(asset_name, date=None):
 					debit_entry.update({
 						dimension['fieldname']: asset.get(dimension['fieldname']) or dimension.get('default_dimension')
 					})
-			frappe.msgprint("Sau for "+debit_account+" credit "+credit_account)
+	
 
 			je.append("accounts", credit_entry)
 
@@ -95,14 +94,12 @@ def make_depreciation_entry(asset_name, date=None):
 			je.flags.ignore_permissions = True
 			je.save()
 
-			frappe.msgprint("Sau save ")
 
 			if not je.meta.get_workflow():
 				je.submit()
 
 			d.db_set("journal_entry", je.name)
 
-			frappe.msgprint("Sau db_set ")
 
 			idx = cint(d.finance_book_id)
 
