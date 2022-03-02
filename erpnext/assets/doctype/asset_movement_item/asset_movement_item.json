@@ -1,11 +1,12 @@
 {
- "creation": "2019-10-07 18:49:00.737806",
+ "actions": [],
+ "creation": "2022-02-10 13:23:16.109011",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "company",
-  "asset",
+  "congcu_asset",
   "source_location",
   "from_employee",
   "column_break_2",
@@ -14,14 +15,6 @@
   "to_employee"
  ],
  "fields": [
-  {
-   "fieldname": "asset",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Asset",
-   "options": "Asset",
-   "reqd": 1
-  },
   {
    "fetch_from": "asset.asset_name",
    "fieldname": "asset_name",
@@ -70,10 +63,19 @@
    "label": "Company",
    "options": "Company",
    "read_only": 1
+  },
+  {
+   "fieldname": "congcu_asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "CongCu_Asset",
+   "options": "CongCu_Asset",
+   "reqd": 1
   }
  ],
  "istable": 1,
- "modified": "2019-10-09 15:59:08.265141",
+ "links": [],
+ "modified": "2022-02-25 13:33:45.623907",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Asset Movement Item",
@@ -82,5 +84,6 @@
  "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }
