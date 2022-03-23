@@ -1,7 +1,7 @@
 // Copyright (c) 2016, Frappe Technologies Pvt. Ltd. and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on('CongCu_Asset_Category', {
+frappe.ui.form.on('Tools Category', {
 	onload: function(frm) {
 		frm.add_fetch('company_name', 'accumulated_depreciation_account', 'accumulated_depreciation_account');
 		frm.add_fetch('company_name', 'depreciation_expense_account', 'depreciation_expense_account');
@@ -10,7 +10,6 @@ frappe.ui.form.on('CongCu_Asset_Category', {
 			var d  = locals[cdt][cdn];
 			return {
 				"filters": {
-					"root_type": "Asset",
 					"is_group": 0,
 					"company": d.company_name
 				}

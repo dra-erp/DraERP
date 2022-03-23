@@ -4,5 +4,5 @@
 # import frappe
 import unittest
 
-class TestCongCu_Asset_Category(unittest.TestCase):
+class TestToolsCategory(unittest.TestCase):
 	pass

@@ -196,8 +196,8 @@ class Item(Document):
 
 	def validate_fixed_asset(self):
 		if self.is_fixed_asset:
-			if self.is_stock_item:
-				frappe.throw(_("Fixed Asset Item must be a non-stock item."))
+			# if self.is_stock_item:
+			# 	frappe.throw(_("Fixed Asset Item must be a non-stock item."))
 
 			if not self.asset_category:
 				frappe.throw(_("Asset Category is mandatory for Fixed Asset item"))

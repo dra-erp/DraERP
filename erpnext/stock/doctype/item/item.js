@@ -169,7 +169,8 @@ frappe.ui.form.on("Item", {
 			method: "set_asset_naming_series",
 			doc: frm.doc,
 			callback: function() {
-				frm.set_value("is_stock_item", frm.doc.is_fixed_asset ? 0 : 1);
+				//frm.set_value("is_stock_item", frm.doc.is_fixed_asset ? 0 : 1); //dong cu
+				frm.set_value("is_stock_item", frm.doc.is_stock_item ? 1 : 0);
 				frm.trigger("set_asset_naming_series");
 			}
 		});
