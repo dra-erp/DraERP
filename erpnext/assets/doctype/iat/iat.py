@@ -1,3 +1,9 @@
+# Copyright (c) 2022, Frappe Technologies Pvt. Ltd. and contributors
+# For license information, please see license.txt
+
+# import frappe
+from frappe.model.document import Document
+
 # Copyright (c) 2016, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
@@ -20,20 +26,18 @@ from frappe.utils import (
 	nowdate,
 	today,
 )
-
+#test branch
 import erpnext
 from erpnext.accounts.general_ledger import make_reverse_gl_entries
-from erpnext.assets.doctype.congcu_asset.depreciation import (
+from erpnext.assets.doctype.asset.depreciation import (
 	get_depreciation_accounts,
 	get_disposal_account_and_cost_center,
 )
 from erpnext.assets.doctype.asset_category.asset_category import get_asset_category_account
 from erpnext.controllers.accounts_controller import AccountsController
 
-
-class CongCu_Asset(AccountsController):
+class IaT(AccountsController):
 	def validate(self):
-		frappe.msgprint(_("Alooooooo"))
 		self.validate_asset_values()
 		self.validate_asset_and_reference()
 		self.validate_item()
@@ -48,7 +52,6 @@ class CongCu_Asset(AccountsController):
 		self.status = self.get_status()
 
 	def on_submit(self):
-		frappe.msgprint(_("Alooooooo"))
 		self.validate_in_use_date()
 		self.set_status()
 		self.make_asset_movement()
@@ -61,7 +64,7 @@ class CongCu_Asset(AccountsController):
 		self.delete_depreciation_entries()
 		self.set_status()
 		self.ignore_linked_doctypes = ('GL Entry', 'Stock Ledger Entry')
-		make_reverse_gl_entries(voucher_type='CongCu_Asset', voucher_no=self.name)
+		make_reverse_gl_entries(voucher_type='IaT', voucher_no=self.name)
 		self.db_set('booked_fixed_asset', 0)
 
 	def validate_asset_and_reference(self):
@@ -88,7 +91,6 @@ class CongCu_Asset(AccountsController):
 				flt(self.opening_accumulated_depreciation))
 
 	def validate_item(self):
-		frappe.msgprint(_("Alooooooo"))
 		item = frappe.get_cached_value("Item", self.item_code,
 			["is_fixed_asset", "is_stock_item", "disabled"], as_dict=1)
 		if not item:
@@ -96,9 +98,12 @@ class CongCu_Asset(AccountsController):
 		elif item.disabled:
 			frappe.throw(_("Item {0} has been disabled").format(self.item_code))
 		elif not item.is_fixed_asset:
-			frappe.throw(_("Item {0} must be a Fixed Asset Item").format(self.item_code))
-		elif item.is_stock_item:
-			frappe.throw(_("Item {0} must be a non-stock item").format(self.item_code))
+			frappe.throw(_("Item {0} must be a Fixed IaT Item").format(self.item_code))
+		# elif item.is_stock_item:
+		# 	# frappe.throw(_("Item {0} must be a non-stock item").format(self.item_code))
+		# 	# message box with green indicator warning
+		# 	frappe.msgprint(_("Item {0} must be a non-stock item").format(self.item_code), indicator='green')
+			
 
 	def validate_cost_center(self):
 		if not self.cost_center: return
@@ -162,9 +167,9 @@ class CongCu_Asset(AccountsController):
 		if self.is_existing_asset: return
 
 		if self.gross_purchase_amount and self.gross_purchase_amount != self.purchase_receipt_amount:
-			error_message = _("Gross Purchase Amount should be <b>equal</b> to purchase amount of one single Asset.")
+			error_message = _("Gross Purchase Amount should be <b>equal</b> to purchase amount of one single IaT.")
 			error_message += "<br>"
-			error_message += _("Please do not book expense of multiple assets against one single Asset.")
+			error_message += _("Please do not book expense of multiple assets against one single IaT.")
 			frappe.throw(error_message, title=_("Invalid Gross Purchase Amount"))
 
 	def make_asset_movement(self):
@@ -175,13 +180,13 @@ class CongCu_Asset(AccountsController):
 			posting_date, posting_time = frappe.db.get_value(reference_doctype, reference_docname, ["posting_date", "posting_time"])
 			transaction_date = get_datetime("{} {}".format(posting_date, posting_time))
 		assets = [{
-			'congcu_asset': self.name,
+			'asset': self.name,
 			'asset_name': self.asset_name,
 			'target_location': self.location,
 			'to_employee': self.custodian
 		}]
 		asset_movement = frappe.get_doc({
-			'doctype': 'CongCu_Asset_Movement',
+			'doctype': 'IaT Movement',
 			'assets': assets,
 			'purpose': 'Receipt',
 			'company': self.company,
@@ -335,7 +340,7 @@ class CongCu_Asset(AccountsController):
 		})
 
 	def _get_value_after_depreciation(self, finance_book):
-		# value_after_depreciation - current Asset value
+		# value_after_depreciation - current IaT value
 		if self.docstatus == 1 and finance_book.value_after_depreciation:
 			value_after_depreciation = flt(finance_book.value_after_depreciation)
 		else:
@@ -528,16 +533,16 @@ class CongCu_Asset(AccountsController):
 		if self.status in ("In Maintenance", "Out of Order"):
 			frappe.throw(_("There are active maintenance or repairs against the asset. You must complete all of them before cancelling the asset."))
 		if self.status not in ("Submitted", "Partially Depreciated", "Fully Depreciated"):
-			frappe.throw(_("Asset cannot be cancelled, as it is already {0}").format(self.status))
+			frappe.throw(_("IaT cannot be cancelled, as it is already {0}").format(self.status))
 
 	def cancel_movement_entries(self):
 		movements = frappe.db.sql(
 			"""SELECT asm.name, asm.docstatus
-			FROM `tabCongCu_Asset_Movement` asm, `tabAsset Movement Item` asm_item
+			FROM `tabIaT Movement` asm, `tabIaT Movement Item` asm_item
 			WHERE asm_item.parent=asm.name and asm_item.asset=%s and asm.docstatus=1""", self.name, as_dict=1)
 
 		for movement in movements:
-			movement = frappe.get_doc('CongCu_Asset_Movement', movement.get('name'))
+			movement = frappe.get_doc('IaT Movement', movement.get('name'))
 			movement.cancel()
 
 	def delete_depreciation_entries(self):
@@ -632,7 +637,7 @@ class CongCu_Asset(AccountsController):
 		if not fixed_asset_account:
 			frappe.throw(
 				_("Set {0} in asset category {1} for company {2}").format(
-					frappe.bold("Fixed Asset Account"),
+					frappe.bold("Fixed IaT Account"),
 					frappe.bold(self.asset_category),
 					frappe.bold(self.company),
 				),
@@ -662,7 +667,7 @@ class CongCu_Asset(AccountsController):
 			gl_entries.append(self.get_gl_dict({
 				"account": cwip_account,
 				"against": fixed_asset_account,
-				"remarks": self.get("remarks") or _("Accounting Entry for Asset"),
+				"remarks": self.get("remarks") or _("Accounting Entry for IaT"),
 				"posting_date": self.available_for_use_date,
 				"credit": self.purchase_receipt_amount,
 				"credit_in_account_currency": self.purchase_receipt_amount,
@@ -672,7 +677,7 @@ class CongCu_Asset(AccountsController):
 			gl_entries.append(self.get_gl_dict({
 				"account": fixed_asset_account,
 				"against": cwip_account,
-				"remarks": self.get("remarks") or _("Accounting Entry for Asset"),
+				"remarks": self.get("remarks") or _("Accounting Entry for IaT"),
 				"posting_date": self.available_for_use_date,
 				"debit": self.purchase_receipt_amount,
 				"debit_in_account_currency": self.purchase_receipt_amount,
@@ -716,34 +721,34 @@ class CongCu_Asset(AccountsController):
 
 def update_maintenance_status():
 	assets = frappe.get_all(
-		"CongCu_Asset", filters={"docstatus": 1, "maintenance_required": 1}
+		"IaT", filters={"docstatus": 1, "maintenance_required": 1}
 	)
 
 	for asset in assets:
-		asset = frappe.get_doc("CongCu_Asset", asset.name)
-		if frappe.db.exists("Asset Repair", {"asset_name": asset.name, "repair_status": "Pending"}):
+		asset = frappe.get_doc("IaT", asset.name)
+		if frappe.db.exists("IaT Repair", {"asset_name": asset.name, "repair_status": "Pending"}):
 			asset.set_status("Out of Order")
-		elif frappe.db.exists("Asset Maintenance Task", {"parent": asset.name, "next_due_date": today()}):
+		elif frappe.db.exists("IaT Maintenance Task", {"parent": asset.name, "next_due_date": today()}):
 			asset.set_status("In Maintenance")
 		else:
 			asset.set_status()
 
 def make_post_gl_entry():
 
-	asset_categories = frappe.db.get_all('Asset Category', fields = ['name', 'enable_cwip_accounting'])
+	asset_categories = frappe.db.get_all('IaT Category', fields = ['name', 'enable_cwip_accounting'])
 
 	for asset_category in asset_categories:
 		if cint(asset_category.enable_cwip_accounting):
-			assets = frappe.db.sql_list(""" select name from `tabCongCu_Asset`
+			assets = frappe.db.sql_list(""" select name from `tabIaT`
 				where asset_category = %s and ifnull(booked_fixed_asset, 0) = 0
 				and available_for_use_date = %s""", (asset_category.name, nowdate()))
 
 			for asset in assets:
-				doc = frappe.get_doc('CongCu_Asset', asset)
+				doc = frappe.get_doc('IaT', asset)
 				doc.make_gl_entries()
 
 def get_asset_naming_series():
-	meta = frappe.get_meta('CongCu_Asset')
+	meta = frappe.get_meta('IaT')
 	return meta.get_field("naming_series").options
 
 @frappe.whitelist()
@@ -755,7 +760,7 @@ def make_sales_invoice(asset, item_code, company, serial_no=None):
 	si.append("items", {
 		"item_code": item_code,
 		"is_fixed_asset": 1,
-		"congcu_asset": asset,
+		"asset": asset,
 		"income_account": disposal_account,
 		"serial_no": serial_no,
 		"cost_center": depreciation_cost_center,
@@ -766,7 +771,7 @@ def make_sales_invoice(asset, item_code, company, serial_no=None):
 
 @frappe.whitelist()
 def create_asset_maintenance(asset, item_code, item_name, asset_category, company):
-	asset_maintenance = frappe.new_doc("Asset Maintenance")
+	asset_maintenance = frappe.new_doc("IaT Maintenance")
 	asset_maintenance.update({
 		"asset_name": asset,
 		"company": company,
@@ -778,18 +783,18 @@ def create_asset_maintenance(asset, item_code, item_name, asset_category, compan
 
 @frappe.whitelist()
 def create_asset_repair(asset, asset_name):
-	asset_repair = frappe.new_doc("Asset Repair")
+	asset_repair = frappe.new_doc("IaT Repair")
 	asset_repair.update({
-		"congcu_asset": asset,
+		"asset": asset,
 		"asset_name": asset_name
 	})
 	return asset_repair
 
 @frappe.whitelist()
 def create_asset_value_adjustment(asset, asset_category, company):
-	asset_value_adjustment = frappe.new_doc("Asset Value Adjustment")
+	asset_value_adjustment = frappe.new_doc("IaT Value Adjustment")
 	asset_value_adjustment.update({
-		"congcu_asset": asset,
+		"asset": asset,
 		"company": company,
 		"asset_category": asset_category
 	})
@@ -802,18 +807,18 @@ def transfer_asset(args):
 	if args.get('serial_no'):
 		args['quantity'] = len(args.get('serial_no').split('\n'))
 
-	movement_entry = frappe.new_doc("CongCu_Asset_Movement")
+	movement_entry = frappe.new_doc("IaT Movement")
 	movement_entry.update(args)
 	movement_entry.insert()
 	movement_entry.submit()
 
 	frappe.db.commit()
 
-	frappe.msgprint(_("Asset Movement record {0} created").format("<a href='/app/Form/CongCu_Asset_Movement/{0}'>{0}</a>").format(movement_entry.name))
+	frappe.msgprint(_("IaT Movement record {0} created").format("<a href='/app/Form/IaT Movement/{0}'>{0}</a>").format(movement_entry.name))
 
 @frappe.whitelist()
 def get_item_details(item_code, asset_category):
-	asset_category_doc = frappe.get_doc('Asset Category', asset_category)
+	asset_category_doc = frappe.get_doc('IaT Category', asset_category)
 	books = []
 	for d in asset_category_doc.finance_books:
 		books.append({
@@ -849,7 +854,7 @@ def get_asset_account(account_name, asset=None, asset_category=None, company=Non
 
 @frappe.whitelist()
 def make_journal_entry(asset_name):
-	asset = frappe.get_doc("CongCu_Asset", asset_name)
+	asset = frappe.get_doc("IaT", asset_name)
 	fixed_asset_account, accumulated_depreciation_account, depreciation_expense_account = \
 		get_depreciation_accounts(asset)
 
@@ -865,14 +870,14 @@ def make_journal_entry(asset_name):
 
 	je.append("accounts", {
 		"account": depreciation_expense_account,
-		"reference_type": "CongCu_Asset",
+		"reference_type": "IaT",
 		"reference_name": asset.name,
 		"cost_center": depreciation_cost_center
 	})
 
 	je.append("accounts", {
 		"account": accumulated_depreciation_account,
-		"reference_type": "CongCu_Asset",
+		"reference_type": "IaT",
 		"reference_name": asset.name
 	})
 
@@ -888,13 +893,13 @@ def make_asset_movement(assets, purpose=None):
 	if len(assets) == 0:
 		frappe.throw(_('Atleast one asset has to be selected.'))
 
-	asset_movement = frappe.new_doc("CongCu_Asset_Movement")
+	asset_movement = frappe.new_doc("IaT Movement")
 	asset_movement.quantity = len(assets)
 	for asset in assets:
-		asset = frappe.get_doc('CongCu_Asset', asset.get('name'))
+		asset = frappe.get_doc('IaT', asset.get('name'))
 		asset_movement.company = asset.get('company')
 		asset_movement.append("assets", {
-			'congcu_asset': asset.get('name'),
+			'asset': asset.get('name'),
 			'source_location': asset.get('location'),
 			'from_employee': asset.get('custodian')
 		})
@@ -903,7 +908,7 @@ def make_asset_movement(assets, purpose=None):
 		return asset_movement.as_dict()
 
 def is_cwip_accounting_enabled(asset_category):
-	return cint(frappe.db.get_value("Asset Category", asset_category, "enable_cwip_accounting"))
+	return cint(frappe.db.get_value("IaT Category", asset_category, "enable_cwip_accounting"))
 
 def get_total_days(date, frequency):
 	period_start_date = add_months(date,
@@ -919,7 +924,7 @@ def get_depreciation_amount(asset, depreciable_value, row):
 			depreciation_amount = (flt(asset.gross_purchase_amount) -
 				flt(row.expected_value_after_useful_life)) / flt(row.total_number_of_depreciations)
 
-		# if the Depreciation Schedule is being modified after Asset Repair
+		# if the Depreciation Schedule is being modified after IaT Repair
 		else:
 			depreciation_amount = (flt(row.value_after_depreciation) -
 				flt(row.expected_value_after_useful_life)) / (date_diff(asset.to_date, asset.available_for_use_date) / 365)
@@ -930,7 +935,7 @@ def get_depreciation_amount(asset, depreciable_value, row):
 
 @frappe.whitelist()
 def split_asset(asset_name, split_qty):
-	asset = frappe.get_doc("CongCu_Asset", asset_name)
+	asset = frappe.get_doc("IaT", asset_name)
 	split_qty = cint(split_qty)
 
 	if split_qty >= asset.asset_quantity:
@@ -947,7 +952,7 @@ def update_existing_asset(asset, remaining_qty):
 	remaining_gross_purchase_amount = flt((asset.gross_purchase_amount * remaining_qty) / asset.asset_quantity)
 	opening_accumulated_depreciation = flt((asset.opening_accumulated_depreciation * remaining_qty) / asset.asset_quantity)
 
-	frappe.db.set_value("CongCu_Asset", asset.name, {
+	frappe.db.set_value("IaT", asset.name, {
 		'opening_accumulated_depreciation': opening_accumulated_depreciation,
 		'gross_purchase_amount': remaining_gross_purchase_amount,
 		'asset_quantity': remaining_qty
@@ -956,8 +961,8 @@ def update_existing_asset(asset, remaining_qty):
 	for finance_book in asset.get('finance_books'):
 		value_after_depreciation = flt((finance_book.value_after_depreciation * remaining_qty)/asset.asset_quantity)
 		expected_value_after_useful_life = flt((finance_book.expected_value_after_useful_life * remaining_qty)/asset.asset_quantity)
-		frappe.db.set_value('Asset Finance Book', finance_book.name, 'value_after_depreciation', value_after_depreciation)
-		frappe.db.set_value('Asset Finance Book', finance_book.name, 'expected_value_after_useful_life', expected_value_after_useful_life)
+		frappe.db.set_value('IaT Finance Book', finance_book.name, 'value_after_depreciation', value_after_depreciation)
+		frappe.db.set_value('IaT Finance Book', finance_book.name, 'expected_value_after_useful_life', expected_value_after_useful_life)
 
 	accumulated_depreciation = 0
 

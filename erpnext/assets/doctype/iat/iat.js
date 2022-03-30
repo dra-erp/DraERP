@@ -1,20 +1,19 @@
 // Copyright (c) 2016, Frappe Technologies Pvt. Ltd. and contributors
 // For license information, please see license.txt
 
-frappe.provide("erpnext.congcu_asset");
+frappe.provide("erpnext.asset");
 frappe.provide("erpnext.accounts.dimensions");
 
-frappe.ui.form.on('CongCu_Asset', {
+frappe.ui.form.on('IaT', {
 	onload: function(frm) {
-		frm.set_query("item_code", function() {
-			return {
-				"filters": {
-					"disabled": 0,
-					"is_fixed_asset": 1,
-					"is_stock_item": 0
-				}
-			};
-		});
+		// frm.set_query("item_code", function() {
+		// 	return {
+		// 		"filters": {
+		// 			"is_fixed_asset": 1,
+		// 			"is_stock_item": 1
+		// 		}
+		// 	};
+		// });
 
 		frm.set_query("warehouse", function() {
 			return {
@@ -35,16 +34,16 @@ frappe.ui.form.on('CongCu_Asset', {
 
 		erpnext.accounts.dimensions.setup_dimension_filters(frm, frm.doctype);
 	},
-	
+
 	company: function(frm) {
 		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
 	},
 
 	setup: function(frm) {
 		frm.make_methods = {
-			'CongCu_Asset_Movement': () => {
+			'Asset Movement': () => {
 				frappe.call({
-				method: "erpnext.assets.doctype.congcu_asset.congcu_asset.make_asset_movement",
+				method: "erpnext.assets.doctype.asset.asset.make_asset_movement",
 				freeze: true,
 				args:{
 					"assets": [{ name: cur_frm.doc.name }]
@@ -74,18 +73,18 @@ frappe.ui.form.on('CongCu_Asset', {
 	},
 
 	refresh: function(frm) {
-		frappe.ui.form.trigger("CongCu_Asset", "is_existing_asset");
+		frappe.ui.form.trigger("IaT", "is_existing_asset");
 		frm.toggle_display("next_depreciation_date", frm.doc.docstatus < 1);
 		frm.events.make_schedules_editable(frm);
 
 		if (frm.doc.docstatus==1) {
 			if (in_list(["Submitted", "Partially Depreciated", "Fully Depreciated"], frm.doc.status)) {
 				frm.add_custom_button(__("Transfer Asset"), function() {
-					erpnext.congcu_asset.transfer_asset(frm);
+					erpnext.asset.transfer_asset(frm);
 				}, __("Manage"));
 
 				frm.add_custom_button(__("Scrap Asset"), function() {
-					erpnext.congcu_asset.scrap_asset(frm);
+					erpnext.asset.scrap_asset(frm);
 				}, __("Manage"));
 
 				frm.add_custom_button(__("Sell Asset"), function() {
@@ -94,7 +93,7 @@ frappe.ui.form.on('CongCu_Asset', {
 
 			} else if (frm.doc.status=='Scrapped') {
 				frm.add_custom_button(__("Restore Asset"), function() {
-					erpnext.congcu_asset.restore_asset(frm);
+					erpnext.asset.restore_asset(frm);
 				}, __("Manage"));
 			}
 
@@ -175,7 +174,7 @@ frappe.ui.form.on('CongCu_Asset', {
 
 	make_journal_entry: function(frm) {
 		frappe.call({
-			method: "erpnext.assets.doctype.congcu_asset.congcu_asset.make_journal_entry",
+			method: "erpnext.assets.doctype.asset.asset.make_journal_entry",
 			args: {
 				asset_name: frm.doc.name
 			},
@@ -246,7 +245,7 @@ frappe.ui.form.on('CongCu_Asset', {
 
 	set_finance_book: function(frm) {
 		frappe.call({
-			method: "erpnext.assets.doctype.congcu_asset.congcu_asset.get_item_details",
+			method: "erpnext.assets.doctype.asset.asset.get_item_details",
 			args: {
 				item_code: frm.doc.item_code,
 				asset_category: frm.doc.asset_category
@@ -265,7 +264,7 @@ frappe.ui.form.on('CongCu_Asset', {
 	},
 
 	opening_accumulated_depreciation: function(frm) {
-		erpnext.congcu_asset.set_accumulated_depreciation(frm);
+		erpnext.asset.set_accumulated_depreciation(frm);
 	},
 
 	make_schedules_editable: function(frm) {
@@ -287,7 +286,7 @@ frappe.ui.form.on('CongCu_Asset', {
 				"company": frm.doc.company,
 				"serial_no": frm.doc.serial_no
 			},
-			method: "erpnext.assets.doctype.congcu_asset.congcu_asset.make_sales_invoice",
+			method: "erpnext.assets.doctype.asset.asset.make_sales_invoice",
 			callback: function(r) {
 				var doclist = frappe.model.sync(r.message);
 				frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
@@ -304,7 +303,7 @@ frappe.ui.form.on('CongCu_Asset', {
 				"asset_category": frm.doc.asset_category,
 				"company": frm.doc.company
 			},
-			method: "erpnext.assets.doctype.congcu_asset.congcu_asset.create_asset_maintenance",
+			method: "erpnext.assets.doctype.asset.asset.create_asset_maintenance",
 			callback: function(r) {
 				var doclist = frappe.model.sync(r.message);
 				frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
@@ -318,7 +317,7 @@ frappe.ui.form.on('CongCu_Asset', {
 				"asset": frm.doc.name,
 				"asset_name": frm.doc.asset_name
 			},
-			method: "erpnext.assets.doctype.congcu_asset.congcu_asset.create_asset_repair",
+			method: "erpnext.assets.doctype.asset.asset.create_asset_repair",
 			callback: function(r) {
 				var doclist = frappe.model.sync(r.message);
 				frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
@@ -350,7 +349,7 @@ frappe.ui.form.on('CongCu_Asset', {
 					"asset_name": frm.doc.name,
 					"split_qty": cint(dialog_data.split_qty)
 				},
-				method: "erpnext.assets.doctype.congcu_asset.congcu_asset.split_asset",
+				method: "erpnext.assets.doctype.asset.asset.split_asset",
 				callback: function(r) {
 					let doclist = frappe.model.sync(r.message);
 					frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
@@ -370,7 +369,7 @@ frappe.ui.form.on('CongCu_Asset', {
 				"asset_category": frm.doc.asset_category,
 				"company": frm.doc.company
 			},
-			method: "erpnext.assets.doctype.congcu_asset.congcu_asset.create_asset_value_adjustment",
+			method: "erpnext.assets.doctype.asset.asset.create_asset_value_adjustment",
 			freeze: 1,
 			callback: function(r) {
 				var doclist = frappe.model.sync(r.message);
@@ -506,7 +505,7 @@ frappe.ui.form.on('Depreciation Schedule', {
 		var row = locals[cdt][cdn];
 		if (!row.journal_entry) {
 			frappe.call({
-				method: "erpnext.assets.doctype.congcu_asset.depreciation.make_depreciation_entry",
+				method: "erpnext.assets.doctype.iat.depreciation.make_depreciation_entry",
 				args: {
 					"asset_name": frm.doc.name,
 					"date": row.schedule_date
@@ -520,12 +519,12 @@ frappe.ui.form.on('Depreciation Schedule', {
 	},
 
 	depreciation_amount: function(frm, cdt, cdn) {
-		erpnext.congcu_asset.set_accumulated_depreciation(frm);
+		erpnext.asset.set_accumulated_depreciation(frm);
 	}
 
 })
 
-erpnext.congcu_asset.set_accumulated_depreciation = function(frm) {
+erpnext.asset.set_accumulated_depreciation = function(frm) {
 	if(frm.doc.depreciation_method != "Manual") return;
 
 	var accumulated_depreciation = flt(frm.doc.opening_accumulated_depreciation);
@@ -536,13 +535,13 @@ erpnext.congcu_asset.set_accumulated_depreciation = function(frm) {
 	})
 };
 
-erpnext.congcu_asset.scrap_asset = function(frm) {
+erpnext.asset.scrap_asset = function(frm) {
 	frappe.confirm(__("Do you really want to scrap this asset?"), function () {
 		frappe.call({
 			args: {
 				"asset_name": frm.doc.name
 			},
-			method: "erpnext.assets.doctype.congcu_asset.depreciation.scrap_asset",
+			method: "erpnext.assets.doctype.iat.depreciation.scrap_asset",
 			callback: function(r) {
 				cur_frm.reload_doc();
 			}
@@ -550,13 +549,13 @@ erpnext.congcu_asset.scrap_asset = function(frm) {
 	})
 };
 
-erpnext.congcu_asset.restore_asset = function(frm) {
+erpnext.asset.restore_asset = function(frm) {
 	frappe.confirm(__("Do you really want to restore this scrapped asset?"), function () {
 		frappe.call({
 			args: {
 				"asset_name": frm.doc.name
 			},
-			method: "erpnext.assets.doctype.congcu_asset.depreciation.restore_asset",
+			method: "erpnext.assets.doctype.iat.depreciation.restore_asset",
 			callback: function(r) {
 				cur_frm.reload_doc();
 			}
@@ -564,9 +563,9 @@ erpnext.congcu_asset.restore_asset = function(frm) {
 	})
 };
 
-erpnext.congcu_asset.transfer_asset = function() {
+erpnext.asset.transfer_asset = function() {
 	frappe.call({
-		method: "erpnext.assets.doctype.congcu_asset.congcu_asset.make_asset_movement",
+		method: "erpnext.assets.doctype.asset.asset.make_asset_movement",
 		freeze: true,
 		args:{
 			"assets": [{ name: cur_frm.doc.name }],
