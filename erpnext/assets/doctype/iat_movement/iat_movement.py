@@ -29,13 +29,13 @@ class IaTMovement(Document):
 		for d in self.assets:
 			if self.purpose in ['Transfer', 'Issue']:
 				if not d.source_location:
-					d.source_location = frappe.db.get_value("Asset", d.asset, "location")
+					d.source_location = frappe.db.get_value("IaT", d.asset, "location")
 
 				if not d.source_location:
 					frappe.throw(_("Source Location is required for the Asset {0}").format(d.asset))
 
 				if d.source_location:
-					current_location = frappe.db.get_value("Asset", d.asset, "location")
+					current_location = frappe.db.get_value("IaT", d.asset, "location")
 
 					if current_location != d.source_location:
 						frappe.throw(_("Asset {0} does not belongs to the location {1}").

@@ -565,7 +565,7 @@ erpnext.asset.restore_asset = function(frm) {
 
 erpnext.asset.transfer_asset = function() {
 	frappe.call({
-		method: "erpnext.assets.doctype.asset.asset.make_asset_movement",
+		method: "erpnext.assets.doctype.iat.iat.make_asset_movement",
 		freeze: true,
 		args:{
 			"assets": [{ name: cur_frm.doc.name }],
