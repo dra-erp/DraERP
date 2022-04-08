@@ -286,7 +286,7 @@ frappe.ui.form.on('IaT', {
 				"company": frm.doc.company,
 				"serial_no": frm.doc.serial_no
 			},
-			method: "erpnext.assets.doctype.asset.asset.make_sales_invoice",
+			method: "erpnext.assets.doctype.iat.iat.make_sales_invoice",
 			callback: function(r) {
 				var doclist = frappe.model.sync(r.message);
 				frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
@@ -303,7 +303,7 @@ frappe.ui.form.on('IaT', {
 				"asset_category": frm.doc.asset_category,
 				"company": frm.doc.company
 			},
-			method: "erpnext.assets.doctype.asset.asset.create_asset_maintenance",
+			method: "erpnext.assets.doctype.iat.iat.create_asset_maintenance",
 			callback: function(r) {
 				var doclist = frappe.model.sync(r.message);
 				frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
@@ -317,7 +317,7 @@ frappe.ui.form.on('IaT', {
 				"asset": frm.doc.name,
 				"asset_name": frm.doc.asset_name
 			},
-			method: "erpnext.assets.doctype.asset.asset.create_asset_repair",
+			method: "erpnext.assets.doctype.iat.iat.create_asset_repair",
 			callback: function(r) {
 				var doclist = frappe.model.sync(r.message);
 				frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
@@ -349,7 +349,7 @@ frappe.ui.form.on('IaT', {
 					"asset_name": frm.doc.name,
 					"split_qty": cint(dialog_data.split_qty)
 				},
-				method: "erpnext.assets.doctype.asset.asset.split_asset",
+				method: "erpnext.assets.doctype.iat.iat.split_asset",
 				callback: function(r) {
 					let doclist = frappe.model.sync(r.message);
 					frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
@@ -369,7 +369,7 @@ frappe.ui.form.on('IaT', {
 				"asset_category": frm.doc.asset_category,
 				"company": frm.doc.company
 			},
-			method: "erpnext.assets.doctype.asset.asset.create_asset_value_adjustment",
+			method: "erpnext.assets.doctype.iat.iat.create_asset_value_adjustment",
 			freeze: 1,
 			callback: function(r) {
 				var doclist = frappe.model.sync(r.message);
