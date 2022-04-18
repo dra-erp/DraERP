@@ -1,7 +1,7 @@
 # Copyright (c) 2016, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
-#day la test
-#fhcgh
+
+
 import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate, today
@@ -10,7 +10,7 @@ from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
 	get_checks_for_pl_and_bs_accounts,
 )
 
-#test123
+
 def post_depreciation_entries(date=None):
 	# Return if automatic booking of asset depreciation is disabled
 	if not cint(frappe.db.get_value("Accounts Settings", None, "book_asset_depreciation_entry_automatically")):
