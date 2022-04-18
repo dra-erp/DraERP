@@ -1,6 +1,6 @@
 # Copyright (c) 2016, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
-
+#day la test
 #fhcgh
 import frappe
 from frappe import _
