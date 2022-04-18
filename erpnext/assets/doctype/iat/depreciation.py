@@ -10,7 +10,7 @@ from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
 	get_checks_for_pl_and_bs_accounts,
 )
 
-
+#test
 def post_depreciation_entries(date=None):
 	# Return if automatic booking of asset depreciation is disabled
 	if not cint(frappe.db.get_value("Accounts Settings", None, "book_asset_depreciation_entry_automatically")):
