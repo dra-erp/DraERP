@@ -800,6 +800,8 @@ def create_asset_value_adjustment(asset, asset_category, company):
 	})
 	return asset_value_adjustment
 
+
+//Day la ban Tan fix
 @frappe.whitelist()
 def transfer_asset(args):
 	args = json.loads(args)
