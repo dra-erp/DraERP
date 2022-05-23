@@ -932,7 +932,7 @@ class SalesInvoice(SellingController):
 
 		for item in self.get("items"):
 			if flt(item.base_net_amount, item.precision("base_net_amount")):
-				if item.is_fixed_asset:
+				if item.is_fixed_asset and not item.is_stock:
 					asset = self.get_asset(item)
 
 					if self.is_return:
@@ -988,6 +988,8 @@ class SalesInvoice(SellingController):
 	def get_asset(self, item):
 		if item.get('asset'):
 			asset = frappe.get_doc("Asset", item.asset)
+		# elif (not item.get('asset')):
+		# 	asset = frappe.get_doc("IaT",item.item_code)	
 		else:
 			frappe.throw(_(
 				"Row #{0}: You must select an Asset for Item {1}.").format(item.idx, item.item_name),

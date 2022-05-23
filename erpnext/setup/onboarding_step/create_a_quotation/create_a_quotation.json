@@ -1,7 +1,7 @@
 {
  "action": "Create Entry",
  "action_label": "Let\u2019s create your first Quotation",
- "creation": "2020-06-01 13:34:58.958641",
+ "creation": "2022-02-10 13:22:40.785494",
  "description": "# Create a Quotation\n\nLet\u2019s get started with business transactions by creating your first Quotation. You can create a Quotation for an existing customer or a prospect. It will be an approved document, with items you sell and the proposed price + taxes applied. After completing the instructions, you will get a Quotation in a ready to share print format.",
  "docstatus": 0,
  "doctype": "Onboarding Step",
@@ -9,7 +9,7 @@
  "is_complete": 0,
  "is_single": 0,
  "is_skipped": 0,
- "modified": "2021-12-15 14:21:31.675330",
+ "modified": "2022-04-12 11:06:44.878671",
  "modified_by": "Administrator",
  "name": "Create a Quotation",
  "owner": "Administrator",

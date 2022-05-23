@@ -596,7 +596,7 @@ class IaT(AccountsController):
 		purchase_document = self.get_purchase_document()
 		if not purchase_document:
 			return False
-
+		
 		asset_bought_with_invoice = (purchase_document == self.purchase_invoice)
 		fixed_asset_account = self.get_fixed_asset_account()
 
@@ -800,6 +800,8 @@ def create_asset_value_adjustment(asset, asset_category, company):
 	})
 	return asset_value_adjustment
 
+
+#Day la ban Tan fix
 @frappe.whitelist()
 def transfer_asset(args):
 	args = json.loads(args)
