@@ -245,10 +245,10 @@ frappe.ui.form.on('IaT', {
 
 	set_finance_book: function(frm) {
 		frappe.call({
-			method: "erpnext.assets.doctype.asset.asset.get_item_details",
+			method: "erpnext.assets.doctype.iat.iat.get_item_details",
 			args: {
 				item_code: frm.doc.item_code,
-				asset_category: frm.doc.asset_category
+				tools_category: frm.doc.tools_category
 			},
 			callback: function(r, rt) {
 				if(r.message) {

@@ -538,7 +538,7 @@ class IaT(AccountsController):
 	def cancel_movement_entries(self):
 		movements = frappe.db.sql(
 			"""SELECT asm.name, asm.docstatus
-			FROM `tabIaT Movement` asm, `tabIaT Movement Item` asm_item
+			FROM `tabIaT Movement` asm, `tabAsset Movement Item` asm_item
 			WHERE asm_item.parent=asm.name and asm_item.asset=%s and asm.docstatus=1""", self.name, as_dict=1)
 
 		for movement in movements:
@@ -735,7 +735,7 @@ def update_maintenance_status():
 
 def make_post_gl_entry():
 
-	asset_categories = frappe.db.get_all('IaT Category', fields = ['name', 'enable_cwip_accounting'])
+	asset_categories = frappe.db.get_all('Tools Category', fields = ['name', 'enable_cwip_accounting'])
 
 	for asset_category in asset_categories:
 		if cint(asset_category.enable_cwip_accounting):
@@ -817,8 +817,8 @@ def transfer_asset(args):
 	frappe.msgprint(_("IaT Movement record {0} created").format("<a href='/app/Form/IaT Movement/{0}'>{0}</a>").format(movement_entry.name))
 
 @frappe.whitelist()
-def get_item_details(item_code, asset_category):
-	asset_category_doc = frappe.get_doc('IaT Category', asset_category)
+def get_item_details(item_code, tools_category):
+	asset_category_doc = frappe.get_doc('Tools Category', tools_category)
 	books = []
 	for d in asset_category_doc.finance_books:
 		books.append({
@@ -908,7 +908,7 @@ def make_asset_movement(assets, purpose=None):
 		return asset_movement.as_dict()
 
 def is_cwip_accounting_enabled(asset_category):
-	return cint(frappe.db.get_value("IaT Category", asset_category, "enable_cwip_accounting"))
+	return cint(frappe.db.get_value("Tools Category", asset_category, "enable_cwip_accounting"))
 
 def get_total_days(date, frequency):
 	period_start_date = add_months(date,
