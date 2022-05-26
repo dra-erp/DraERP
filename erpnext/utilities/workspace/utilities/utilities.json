@@ -1,7 +1,7 @@
 {
  "charts": [],
  "content": "[{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports & Masters</b></span>\",\"col\":12}},{\"type\":\"card\",\"data\":{\"card_name\":\"Video\",\"col\":4}}]",
- "creation": "2020-09-10 12:21:22.335307",
+ "creation": "2022-02-10 13:23:15.924472",
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
@@ -40,16 +40,16 @@
    "type": "Link"
   }
  ],
- "modified": "2022-01-13 17:50:10.067510",
+ "modified": "2022-05-24 17:01:37.458861",
  "modified_by": "Administrator",
  "module": "Utilities",
  "name": "Utilities",
- "owner": "user@erpnext.com",
+ "owner": "Administrator",
  "parent_page": "",
  "public": 1,
  "restrict_to_domain": "",
  "roles": [],
- "sequence_id": 30.0,
+ "sequence_id": 28.0,
  "shortcuts": [],
  "title": "Utilities"
 }

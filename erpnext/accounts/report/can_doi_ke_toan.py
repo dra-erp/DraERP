@@ -454,25 +454,22 @@ def tinh_No_Yearly_Finance_Book_Party_Pos(nam,account,company,finance_book):
             "company":company,
             "finance_book":finance_book
     }
-    list = frappe.db.sql("""
-			select (sum(debit)-sum(credit)) total
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-                and gle.finance_book = %(finance_book)s
-				and gle.fiscal_year between 2000 AND %(nam)s
-				group by party having total > 0""",test,as_dict=True)
+    # list = frappe.db.sql("""
+    # 		select (sum(debit)-sum(credit)) total
+    # 		from `tabGL Entry` as gle
+    # 		where gle.account LIKE %(account)s
+    # 			and gle.company = %(company)s
+    #             and gle.finance_book = %(finance_book)s
+    # 			and gle.fiscal_year between 2000 AND %(nam)s
+    # 			group by party having total > 0""",test,as_dict=True)
     a = frappe.db.sql("""
 			select (sum(debit)-sum(credit)) total
 			from `tabGL Entry` as gle
 			where gle.account LIKE %(account)s
 				and gle.company = %(company)s
-				and (gle.finance_book is null or gle.finance_book ='')
 				and gle.fiscal_year between 2000 AND %(nam)s
 				group by party having total > 0""",test,as_dict=True)  
-    thc = 0
-    for party in list :
-        thc+=party.total  
+    thc = 0 
     for party in a :
         thc+=party.total  
     return thc
@@ -501,14 +498,16 @@ def tinh_Co_Yearly_Finance_Book_Party_Pos(nam,account,company,finance_book):
 			where gle.account LIKE %(account)s
 				and gle.company = %(company)s
 				and (gle.finance_book is null or gle.finance_book ='')
-				and gle.fiscal_year between 2000 AND %(nam)s
+				and gle.fiscal_year between 2000 AND %(nam)s 
 				group by party having total > 0""",test,as_dict=True)  
-    thc = 0
+                
+    tgh = 0
     for party in list :
-        thc+=party.total  
+        tgh+=party.total  
     for party in a :
-        thc+=party.total  
-    return thc
+        tgh+=party.total  
+    return tgh
+    
 
 def get_accounts():
     return frappe.db.sql("""
@@ -661,7 +660,7 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
             + tinh_No_Cua_Yearly(nam,'22931%%',company,finance_book) 
             + tinh_No_Cua_Yearly_Finance_Book(nam,'1381%%',company,finance_book))
         elif maso == '131':
-            return tinh_No_Yearly_Finance_Book_Party_Pos(nam,'1311%%',company,finance_book)
+            return tinh_No_Yearly_Finance_Book_Party_Pos(nam,'1311%',company,finance_book)
         elif maso == '132':
             return tinh_No_Yearly_Finance_Book_Party_Pos(nam,'3311%%',company,finance_book)
         elif maso == '133':
@@ -817,8 +816,8 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
         elif maso == '220':
             return (tinh_No_Cua_Yearly_Finance_Book(nam,'211%%',company,finance_book) 
                             + tinh_Co_Cua_Yearly_If_Nega(nam,'2141%%',company,finance_book)
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'212%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_If_Nega(nam,'2142%%',company,finance_book)
+                            - tinh_No_Cua_Yearly_Finance_Book(nam,'212%%',company,finance_book) 
+                            - tinh_Co_Cua_Yearly_If_Nega(nam,'2142%%',company,finance_book)
                             + tinh_No_Cua_Yearly_Finance_Book(nam,'213%%',company,finance_book) 
                             + tinh_Co_Cua_Yearly_If_Nega(nam,'2143%%',company,finance_book)
                             )
@@ -1140,7 +1139,7 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
             return tinh_Co_Cua_Yearly(nam,'3312%%',company,finance_book)
         # Lỗi Party
         elif maso == '332':
-            return tinh_Co_Cua_Yearly_Select_If(nam,'1312%%',company,finance_book)
+            return tinh_No_Cua_Yearly_Select_If(nam,'1312%%',company,finance_book)
         elif maso == '333':
             return tinh_Co_Cua_Yearly_Finance_Book(nam,'3352%%',company,finance_book)
         elif maso == '334':
@@ -1208,10 +1207,10 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
                             + (tinh_Co_Cua_Yearly(nam,'4212%%',company,finance_book))
                             + tinh_Co_Cua_Yearly(nam,'441%%',company,finance_book))
         elif maso == '411':
-            return (tinh_Co_Cua_Yearly_Finance_Book(nam,'41111%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_Finance_Book(nam,'411121%%',company,finance_book))
+            return (tinh_Co_Cua_Yearly_If_Nega(nam,'41111%%',company,finance_book) 
+            + tinh_Co_Cua_Yearly_If_Nega(nam,'411121%%',company,finance_book))
         elif maso == '411a':
-            return tinh_Co_Cua_Yearly_Finance_Book(nam,'41111%%',company,finance_book)
+            return tinh_Co_Cua_Yearly_If_Negae(nam,'41111%%',company,finance_book)
         elif maso == '411b':
             return tinh_Co_Cua_Yearly_Finance_Book(nam,'411121%%',company,finance_book)
         elif maso == '412':
@@ -1238,7 +1237,7 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
         elif maso == '421a':
             return tinh_Co_Cua_Yearly_Finance_Book(nam,'4211%%',company,finance_book)
         elif maso == '421b':
-            return tinh_Co_Cua_Yearly_Finance_Book(nam,'4212%%',company,finance_book)
+            return  tinh_No_Cua_Yearly_If_Nega_Finance(nam,'4212%%',company,finance_book)
         elif maso == '422':
             return tinh_Co_Cua_Yearly_Finance_Book(nam,'441%%',company,finance_book)
         elif maso == '430':
@@ -1300,3 +1299,4 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
                             + ((tinh_Co_Cua_Yearly(nam,'461%%',company,finance_book) 
                             - tinh_No_Cua_Yearly(nam,'161%%',company,finance_book)) 
                             + (tinh_Co_Cua_Yearly(nam,'466%%',company,finance_book)))))
+                    

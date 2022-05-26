@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 /* eslint-disable */
 
-frappe.query_reports["Fixed Asset Register"] = {
+frappe.query_reports["Fixed Tool Register"] = {
 	"filters": [
 		{
 			"fieldname": "company",
