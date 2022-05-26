@@ -21,23 +21,95 @@ from erpnext.accounts.utils import get_fiscal_year
 from pymysql import NULL
 
 class TaiKhoan:
-	def __init__(self, tenTaiKhoanCo,tenTaiKhoanNo, tienCo,tienNo):
+	tenTaiKhoanCo=''
+	tenTaiKhoanNo=''
+	tienCo=0
+	tienNo=0
+	def __init__(self):
+		pass
+	def KhoiTao(self, tenTaiKhoanCo,tenTaiKhoanNo, tienCo,tienNo):
 		self.tenTaiKhoanCo = tenTaiKhoanCo
 		self.tienCo = tienCo
 		self.tenTaiKhoanNo = tenTaiKhoanNo
 		self.tienNo = tienNo
-class DinhKhoan(TaiKhoan):
-	def __init__(self):
-		TaiKhoan.__init__(self)
-def layDanhSachTuGLEntry(nam,company):
-	input={
-		nam:nam,
-		company:company
+
+def layDanhSachTuGLEntryTheoMaSo2():
+	return frappe.db.sql("""
+		select posting_date,voucher_no,TRIM(SUBSTRING_INDEX(ACCOUNT, '-', 1)) AS account,debit,credit,debit_in_account_currency,credit_in_account_currency,company,fiscal_year
+		from `tabGL Entry` as gle
+		where voucher_no in (
+			select voucher_no from `tabGL Entry`
+			where (
+				account like '111%'
+				or account like '112%'
+				or account like '113%'
+				or account like '33111%'
+				or account like '33121%'
+				or account like '152%'
+				or account like '153%'
+				or account like '154%'
+				or account like '156%'
+				or against like '111%'
+				or against like '112%'
+				or against like '113%'
+				or against like '33111%'
+				or against like '33121%'
+				or against like '152%'
+				or against like '153%'
+				or against like '154%'
+				or against like '156%'
+			)
+			and is_cancelled=0
+		)
+		""",as_dict=True)
+def locTheoCompanyNamFinanceBook(list,nam,company,fiannce_book):
+	l=[]
+	for i in list:
+		if i.company==company and i.fiscal_year==nam:
+			l.append(i)
+	return l
+
+def viTriTienLonNhat(list):
+	tk=list[0]
+	vt=0
+	for i in range(len(list)):
+		if list[i].debit>tk.debit and list[i].debit > tk.credit:
+			vt=i
+		if list[i].credit>tk.credit and list[i].credit>tk.debit:
+			vt=i
+	return vt
+
+def layDSTheoVoucherNo(voucher_no):
+	test={
+		"voucher_no":voucher_no
 	}
 	return frappe.db.sql("""
-		select posting_date,voucher_no,account,debit,credit
-		from `GL Entry` where fiscal_year=%(nam)s and company=%(company)s
-		""",as_dict=True)
+		select posting_date,voucher_no,debit,credit,debit_in_account_currency,credit_in_account_currency,company,fiscal_year,TRIM(SUBSTRING_INDEX(ACCOUNT, '-', 1)) AS account
+		from `tabGL Entry` where voucher_no=%(voucher_no)s
+		""",test,as_dict=True)
+
+def phanTichDuLieu(list):
+	lr=[]
+	vt=viTriTienLonNhat(list)
+	for  i in range(len(list)):
+		if i==vt:
+			pass
+		else:
+			tmp=TaiKhoan()
+			if list[i].debit>0:
+				tmp.tenTaiKhoanNo=list[i].account
+				tmp.tienNo=list[i].debit
+				tmp.tenTaiKhoanCo=list[vt].account
+				tmp.tienCo=list[i].debit
+			else:
+				tmp.tenTaiKhoanNo=list[vt].account
+				tmp.tienNo=list[i].credit
+				tmp.tenTaiKhoanCo=list[i].account
+				tmp.tienCo=list[i].credit
+			if tmp.tenTaiKhoanCo!=tmp.tenTaiKhoanNo:
+				lr.append(tmp)
+	return lr
+
 def get_period_list(from_fiscal_year, to_fiscal_year, period_start_date, period_end_date, filter_based_on, periodicity, accumulated_values=False,
 	company=None, reset_period_on_fy_change=True, ignore_fiscal_year=False):
 	"""Get a list of dict {"from_date": from_date, "to_date": to_date, "key": key, "label": label}
@@ -235,32 +307,31 @@ select IFNULL((SELECT if(party IS NULL,(
 	WHERE ACCOUNT LIKE %(account)s 
 		AND AGAINST LIKE %(against)s 
 		AND fiscal_year=%(nam)s 
-		AND is_cancelled=0 AND company = %(company)s
+		AND is_cancelled=0 AND company = %(company)s 
 	OR ACCOUNT LIKE %(account)s 
 		AND AGAINST IN 
 			(SELECT party 
 			FROM `tabGL Entry` 
 			WHERE ACCOUNT LIKE %(against)s 
 				AND AGAINST LIKE %(account)s) 
-				AND fiscal_year=%(nam)s AND is_cancelled=0 AND company = %(company)s
+				AND fiscal_year=%(nam)s AND is_cancelled=0 AND company = %(company)s 
 		),(
 	SELECT SUM(debit) FROM `tabGL Entry`  
 	WHERE ACCOUNT LIKE %(against)s 
 		AND AGAINST LIKE %(account)s 
 		AND fiscal_year=%(nam)s 
-		AND is_cancelled=0 AND company = %(company)s
+		AND is_cancelled=0 AND company = %(company)s 
+	
 	OR ACCOUNT LIKE %(against)s 
 		AND AGAINST IN 
 			(SELECT party 
 			FROM `tabGL Entry` 
 			WHERE ACCOUNT LIKE %(account)s 
 				AND AGAINST LIKE %(against)s) 
-				AND fiscal_year=%(nam)s AND is_cancelled=0 AND company = %(company)s
+				AND fiscal_year=%(nam)s AND is_cancelled=0 AND company = %(company)s 
 		)) AS soTien FROM `tabGL Entry` 
 				WHERE company = %(company)s AND is_cancelled=0 AND fiscal_year=%(nam)s
 				GROUP BY soTien HAVING soTien>0 order by soTien LIMIT 1),0) AS soTien;
-
-
 	""",test,as_list=True)[0][0],2)
 	
 	if temp:
@@ -469,6 +540,43 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
 					+tinh_credit(nam,'121%%' ,'112%%',company,finance_book)
 					+tinh_credit(nam,'121%%' ,'113%%',company,finance_book))
 		elif maso=='2':
+
+			list=locTheoCompanyNamFinanceBook(layDanhSachTuGLEntryTheoMaSo2(),nam,company,finance_book)
+			chungTu=''
+			kq=[]
+
+			test=layDSTheoVoucherNo('ACC-JV-2022-00207')
+			test2=viTriTienLonNhat(test)
+			test3=phanTichDuLieu(test)
+			# s=0
+			# for i in test3:
+			# 	s+=i.tienNo
+			# dem=0
+			# for k in test3:
+			# 	dem+=k.tienCo
+			# if test3[0].tenTaiKhoanNo=='11221':
+			# 	return 1
+			# else:
+			# 	return test3[0].tenTaiKhoanNo
+
+
+
+			dem=0
+			for i in list:
+				if(i.voucher_no==chungTu):
+					pass
+				else:
+					for j in phanTichDuLieu(layDSTheoVoucherNo(i.voucher_no)):
+						kq.append(j)				
+				chungTu=i.voucher_no
+			
+			for t in kq:		
+				if t.tenTaiKhoanCo=='1111' or t.tenTaiKhoanCo=='1112' or t.tenTaiKhoanCo=='1113':
+					if t.tenTaiKhoanNo=='331111' :
+						dem+=t.tienNo
+			return dem
+
+			'''
 			return -(tinh_debit(nam,'33111%%' ,'111%%',company,finance_book) 
 					+ tinh_debit(nam,'33111%%' ,'112%%',company,finance_book) 
 					+ tinh_debit(nam,'33111%%' ,'113%%',company,finance_book) 
@@ -487,6 +595,7 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
 					+ tinh_debit(nam,'156%%' ,'111%%',company,finance_book) 
 					+ tinh_debit(nam,'156%%' ,'112%%',company,finance_book) 
 					+ tinh_debit(nam,'156%%' ,'113%%',company,finance_book))
+				'''
 		elif maso=='3':
 			return -(tinh_debit(nam,'334%%' ,'111%%',company,finance_book) 
 					+ tinh_debit(nam,'334%%' ,'112%%',company,finance_book) )
