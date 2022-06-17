@@ -236,7 +236,7 @@ def tinh_No_Cua_Yearly_Cua_TK6421_6423(nam,account,company,finance_book):
 		return flt(frappe.db.sql("""
 			select sum(debit)-sum(credit) from `tabGL Entry` as gle
 			where gle.account like %(account)s and gle.fiscal_year=%(nam)s and gle.voucher_type not like 'Period Closing Voucher'
-			and gle.company like %(company)s and gle.finance_book is null """,test,as_list=True)[0][0],2)
+			and gle.company like %(company)s AND ( gle.finance_book IS NULL OR gle.finance_book='') """,test,as_list=True)[0][0],2)
 
 def tinh_No_Cua_Yearly_Cua_TK6424(nam,account,company,finance_book):
 	test={
@@ -249,7 +249,7 @@ def tinh_No_Cua_Yearly_Cua_TK6424(nam,account,company,finance_book):
 		return flt(frappe.db.sql("""
 			select sum(debit)-sum(credit) from `tabGL Entry` as gle
 			where gle.account like %(account)s and gle.fiscal_year=%(nam)s and gle.voucher_type not like 'Period Closing Voucher'
-			and gle.company like %(company)s and gle.finance_book is null """,test,as_list=True)[0][0],2)+flt(frappe.db.sql("""
+			and gle.company like %(company)s AND ( gle.finance_book IS NULL OR gle.finance_book='') """,test,as_list=True)[0][0],2)+flt(frappe.db.sql("""
 			select sum(debit)-sum(credit) from `tabGL Entry` as gle
 			where gle.account like %(account)s and gle.fiscal_year=%(nam)s and gle.voucher_type not like 'Period Closing Voucher'
 			and gle.company like %(company)s and gle.finance_book like %(finance_book)s """,test,as_list=True)[0][0],2)
@@ -257,7 +257,7 @@ def tinh_No_Cua_Yearly_Cua_TK6424(nam,account,company,finance_book):
 		return flt(frappe.db.sql("""
 			select sum(debit)-sum(credit) from `tabGL Entry` as gle
 			where gle.account like %(account)s and gle.fiscal_year=%(nam)s and gle.voucher_type not like 'Period Closing Voucher'
-			and gle.company like %(company)s and gle.finance_book is null """,test,as_list=True)[0][0],2)
+			and gle.company like %(company)s AND ( gle.finance_book IS NULL OR gle.finance_book='') """,test,as_list=True)[0][0],2)
 
 def tinh_No_Cua_Yearly_Cua_TK6427(nam,account,company,finance_book):
 	test={
@@ -351,7 +351,7 @@ def tinh_No_Khac_Yearly_Cua_TK6421_6423(nam,account,company,finance_book):
 		return flt(frappe.db.sql("""
 			select sum(debit)-sum(credit) from `tabGL Entry` as gle
 			where gle.account like %(account)s and gle.posting_date >= %(from_date)s and gle.posting_date<= %(to_date)s and gle.voucher_type not like 'Period Closing Voucher'
-			and gle.company like %(company)s and gle.finance_book is null """,test,as_list=True)[0][0],2)
+			and gle.company like %(company)s AND ( gle.finance_book IS NULL OR gle.finance_book='') """,test,as_list=True)[0][0],2)
 
 def tinh_No_Khac_Yearly_Cua_TK6424(nam,account,company,finance_book):
 	test={
@@ -365,7 +365,7 @@ def tinh_No_Khac_Yearly_Cua_TK6424(nam,account,company,finance_book):
 		return flt(frappe.db.sql("""
 			select sum(debit)-sum(credit) from `tabGL Entry` as gle
 			where gle.account like %(account)s and gle.posting_date >= %(from_date)s and gle.posting_date<= %(to_date)s and gle.voucher_type not like 'Period Closing Voucher'
-			and gle.company like %(company)s and gle.finance_book is null """,test,as_list=True)[0][0],2)+flt(frappe.db.sql("""
+			and gle.company like %(company)s AND ( gle.finance_book IS NULL OR gle.finance_book='') """,test,as_list=True)[0][0],2)+flt(frappe.db.sql("""
 			select sum(debit)-sum(credit) from `tabGL Entry` as gle
 			where gle.account like %(account)s and gle.posting_date >= %(from_date)s and gle.posting_date<= %(to_date)s and gle.voucher_type not like 'Period Closing Voucher'
 			and gle.company like %(company)s and gle.finance_book like %(finance_book)s """,test,as_list=True)[0][0],2)
@@ -373,7 +373,7 @@ def tinh_No_Khac_Yearly_Cua_TK6424(nam,account,company,finance_book):
 		return flt(frappe.db.sql("""
 			select sum(debit)-sum(credit) from `tabGL Entry` as gle
 			where gle.account like %(account)s and gle.posting_date >= %(from_date)s and gle.posting_date<= %(to_date)s and gle.voucher_type not like 'Period Closing Voucher'
-			and gle.company like %(company)s and gle.finance_book is null """,test,as_list=True)[0][0],2)
+			and gle.company like %(company)s AND ( gle.finance_book IS NULL OR gle.finance_book='') """,test,as_list=True)[0][0],2)
 
 def tinh_No_Khac_Yearly_Cua_TK6427(nam,account,company,finance_book):
 	test={
