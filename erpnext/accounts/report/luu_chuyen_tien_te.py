@@ -1076,10 +1076,6 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
 		nam=nam.label
 
 
-		ketQuaMa60=-(tinhMa60(nam,['111%%','112%','113%','12811%','12881%'],company,finance_book))
-		ketQuaMa61=tinhMa61(nam,company,finance_book)
-
-
 		if maso=='1':		
 			return tinhMa1(nam,company,finance_book)
 		elif maso=='2':		
@@ -1150,21 +1146,55 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
 				+tinhMa36(nam,company,finance_book)
 			)
 		elif maso =='50':
-			return (ketQuaMa1+ketQuaMa2+ketQuaMa3+ketQuaMa4+ketQuaMa5+ketQuaMa6+ketQuaMa7
-					+ ketQuaMa21+ketQuaMa22+ketQuaMa23+ketQuaMa24+ketQuaMa25+ketQuaMa26+ketQuaMa27
-					+ ketQuaMa31+ketQuaMa32+ketQuaMa33+ketQuaMa34+ketQuaMa35+ketQuaMa36)
+			return (tinhMa1(nam,company,finance_book)
+				-tinhMa2(nam,company,finance_book)
+				-tinhMa3(nam,company,finance_book)
+				-tinhMa4(nam,company,finance_book)
+				-tinhMa5(nam,company,finance_book)
+				+tinhMa6(nam,company,finance_book)
+				-tinhMa7(nam,company,finance_book)
+				-tinhMa21(nam,company,finance_book)
+				+tinhMa22(nam,company,finance_book)
+				-tinhMa23(nam,company,finance_book)
+				+tinhMa24(nam,company,finance_book)
+				-tinhMa25(nam,company,finance_book)
+				+tinhMa26(nam,company,finance_book)
+				+tinhMa27(nam,company,finance_book)
+				+tinhMa31(nam,company,finance_book)
+				-tinhMa32(nam,company,finance_book)
+				+tinhMa33(nam,company,finance_book)
+				-tinhMa34(nam,company,finance_book)
+				-tinhMa35(nam,company,finance_book)
+				+tinhMa36(nam,company,finance_book)
+				)
 		elif maso== '60':
-			return ketQuaMa60
+			return -(tinhMa60(nam,['111%%','112%','113%','12811%','12881%'],company,finance_book))
 		elif maso== '61':
-			return ketQuaMa61
+			return tinhMa61(nam,company,finance_book)
 		elif maso== '70':
-			return (ketQuaMa1+ketQuaMa2+ketQuaMa3+ketQuaMa4+ketQuaMa5+ketQuaMa6+ketQuaMa7
-					+ ketQuaMa21+ketQuaMa22+ketQuaMa23+ketQuaMa24+ketQuaMa25+ketQuaMa26+ketQuaMa27
-					+ ketQuaMa31+ketQuaMa32+ketQuaMa33+ketQuaMa34+ketQuaMa35+ketQuaMa36
-					+ketQuaMa60+ketQuaMa61
-					)
-
-		
+			return (tinhMa1(nam,company,finance_book)
+				-tinhMa2(nam,company,finance_book)
+				-tinhMa3(nam,company,finance_book)
+				-tinhMa4(nam,company,finance_book)
+				-tinhMa5(nam,company,finance_book)
+				+tinhMa6(nam,company,finance_book)
+				-tinhMa7(nam,company,finance_book)
+				-tinhMa21(nam,company,finance_book)
+				+tinhMa22(nam,company,finance_book)
+				-tinhMa23(nam,company,finance_book)
+				+tinhMa24(nam,company,finance_book)
+				-tinhMa25(nam,company,finance_book)
+				+tinhMa26(nam,company,finance_book)
+				+tinhMa27(nam,company,finance_book)
+				+tinhMa31(nam,company,finance_book)
+				-tinhMa32(nam,company,finance_book)
+				+tinhMa33(nam,company,finance_book)
+				-tinhMa34(nam,company,finance_book)
+				-tinhMa35(nam,company,finance_book)
+				+tinhMa36(nam,company,finance_book)
+				-(tinhMa60(nam,['111%%','112%','113%','12811%','12881%'],company,finance_book))
+				+tinhMa61(nam,company,finance_book)
+				)
 	else:
 		ketQuaMa1=tinhMa1_Khac_Yearly(nam,company,finance_book)
 		ketQuaMa2=-tinhMa2_Khac_Yearly(nam,company,finance_book)
