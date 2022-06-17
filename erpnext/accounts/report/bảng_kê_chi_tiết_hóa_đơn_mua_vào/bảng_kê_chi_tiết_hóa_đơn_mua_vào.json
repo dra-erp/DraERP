@@ -1,0 +1,37 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2022-05-13 09:09:08.673947",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "json": "{\"filters\":[[\"Purchase Invoice\",\"company\",\"=\",\"Fintech DRACO\"]],\"fields\":[[\"name\",\"Purchase Invoice\"],[\"s\u1ed1_h\u00f3a_\u0111\u01a1n\",\"Purchase Invoice\"],[\"ng\u00e0y_t\u1ea1o_h\u00f3a_\u0111\u01a1n\",\"Purchase Invoice\"],[\"posting_date\",\"Purchase Invoice\"],[\"posting_time\",\"Purchase Invoice\"],[\"tax_id\",\"Purchase Invoice\"],[\"total_taxes_and_charges\",\"Purchase Invoice\"],[\"total_qty\",\"Purchase Invoice\"],[\"total\",\"Purchase Invoice\"],[\"payment_amount\",\"Payment Schedule\"],[\"supplier_name\",\"Purchase Invoice\"],[\"item_code\",\"Purchase Invoice Item\"],[\"rate\",\"Purchase Taxes and Charges\"]],\"order_by\":\"`tabPurchase Invoice`.`modified` desc\",\"add_totals_row\":true,\"page_length\":20,\"column_widths\":{\"name\":120,\"s\u1ed1_h\u00f3a_\u0111\u01a1n\":120,\"ng\u00e0y_t\u1ea1o_h\u00f3a_\u0111\u01a1n\":120,\"posting_date\":120,\"posting_time\":98,\"tax_id\":120,\"total_taxes_and_charges\":120,\"total_qty\":120,\"total\":120,\"Payment Schedule:payment_amount\":120,\"supplier_name\":120,\"Purchase Invoice Item:item_code\":120,\"Purchase Taxes and Charges:rate\":120},\"group_by\":null}",
+ "letter_head": "Bang Can Doi Ke Toan",
+ "modified": "2022-05-17 12:44:51.248816",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "B\u1ea3ng k\u00ea chi ti\u1ebft h\u00f3a \u0111\u01a1n mua v\u00e0o",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Purchase Invoice",
+ "report_name": "B\u1ea3ng k\u00ea chi ti\u1ebft h\u00f3a \u0111\u01a1n mua v\u00e0o",
+ "report_type": "Report Builder",
+ "roles": [
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Purchase User"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Auditor"
+  }
+ ]
+}
