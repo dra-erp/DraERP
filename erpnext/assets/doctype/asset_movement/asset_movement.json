@@ -2,7 +2,7 @@
  "actions": [],
  "allow_import": 1,
  "autoname": "format:ACC-ASM-{YYYY}-{#####}",
- "creation": "2016-04-25 18:00:23.559973",
+ "creation": "2022-02-10 13:23:16.909094",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -95,10 +95,11 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-01-22 12:30:55.295670",
+ "modified": "2022-06-08 10:44:34.364343",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Asset Movement",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -148,5 +149,6 @@
   }
  ],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }

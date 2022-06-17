@@ -1,0 +1,93 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:tool_category_name",
+ "creation": "2022-05-28 11:12:45.504057",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "tool_category_name",
+  "depreciation_options_section",
+  "enable_capital_work_in_progress_accounting",
+  "finance_book_detail_section",
+  "finance_books",
+  "accounts_section",
+  "accounts",
+  "enable_cwip_accounting"
+ ],
+ "fields": [
+  {
+   "fieldname": "tool_category_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Tool Category",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "depreciation_options_section",
+   "fieldtype": "Section Break",
+   "label": " Depreciation Options"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_capital_work_in_progress_accounting",
+   "fieldtype": "Check",
+   "label": "Enable Capital Work in Progress Accounting"
+  },
+  {
+   "fieldname": "finance_book_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Finance Book Detail"
+  },
+  {
+   "fieldname": "finance_books",
+   "fieldtype": "Table",
+   "label": " Finance Books",
+   "options": "Asset Finance Book"
+  },
+  {
+   "fieldname": "accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Accounts"
+  },
+  {
+   "fieldname": "accounts",
+   "fieldtype": "Table",
+   "label": "Accounts",
+   "options": "IaT Category Account"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_cwip_accounting",
+   "fieldtype": "Check",
+   "label": "Enable Cwip Accounting"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2022-06-10 15:58:38.182906",
+ "modified_by": "Administrator",
+ "module": "Instrument",
+ "name": "Tools Category",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,71 @@
+{
+ "actions": [],
+ "creation": "2022-06-03 15:48:25.175238",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company_name",
+  "iat_account",
+  "accumulated_depreciation_account",
+  "depreciation_expense_account",
+  "capital_work_in_progress_account"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "company_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "remember_last_selected_value": 1,
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "iat_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "IaT Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "accumulated_depreciation_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Accumulated Depreciation Account",
+   "options": "Account"
+  },
+  {
+   "columns": 2,
+   "fieldname": "depreciation_expense_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Depreciation Expense Account",
+   "options": "Account"
+  },
+  {
+   "columns": 2,
+   "fieldname": "capital_work_in_progress_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Capital Work In Progress Account",
+   "options": "Account"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "modified": "2022-06-10 16:03:51.354786",
+ "modified_by": "Administrator",
+ "module": "Instrument",
+ "name": "IaT Category Account",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,34 @@
+{
+ "add_total_row": 0,
+ "columns": [],
+ "creation": "2022-05-24 10:43:00.107729",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "json": "{\"filters\":[[\"IaT Movement\",\"company\",\"=\",\"Fintech DRACO\"]],\"fields\":[[\"name\",\"IaT Movement\"],[\"docstatus\",\"IaT Movement\"],[\"company\",\"IaT Movement\"],[\"transaction_date\",\"IaT Movement\"]],\"order_by\":\"`tabIaT Movement`.`modified` desc\",\"add_totals_row\":0,\"page_length\":20,\"column_widths\":{\"name\":120,\"docstatus\":120,\"company\":120,\"transaction_date\":120},\"group_by\":null}",
+ "letter_head": "Bang Can Doi Ke Toan",
+ "modified": "2022-06-09 15:45:09.902406",
+ "modified_by": "Administrator",
+ "module": "Assets",
+ "name": "IaT Movement Report",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "IaT Movement",
+ "report_name": "IaT Movement Report",
+ "report_type": "Report Builder",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Stock Manager"
+  }
+ ]
+}
