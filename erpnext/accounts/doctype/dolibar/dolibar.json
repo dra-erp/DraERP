@@ -3,7 +3,11 @@
  "allow_import": 1,
  "allow_rename": 1,
  "autoname": "D.######",
+<<<<<<< HEAD
+ "creation": "2022-04-15 09:00:46.481480",
+=======
  "creation": "2022-04-01 09:54:33.055739",
+>>>>>>> branch_main
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -25,7 +29,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
+<<<<<<< HEAD
+ "modified": "2022-04-15 09:02:30.523148",
+=======
  "modified": "2022-04-28 09:24:16.617016",
+>>>>>>> branch_main
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "DOLIBAR",

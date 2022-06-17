@@ -1,7 +1,11 @@
 {
  "add_total_row": 0,
  "columns": [],
+<<<<<<< HEAD
+ "creation": "2022-04-15 08:38:48.212433",
+=======
  "creation": "2022-04-14 10:07:40.665269",
+>>>>>>> branch_main
  "disable_prepared_report": 0,
  "disabled": 0,
  "docstatus": 0,
@@ -10,6 +14,28 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": "Bang Can Doi Ke Toan",
+<<<<<<< HEAD
+ "modified": "2022-04-15 08:38:48.212433",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "b\u1ea3ng k\u1ebft qu\u1ea3 ho\u1ea1t \u0111\u1ed9ng kinh doanh",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "GL Entry",
+ "report_name": "b\u1ea3ng k\u1ebft qu\u1ea3 ho\u1ea1t \u0111\u1ed9ng kinh doanh",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "Sales User"
+  },
+  {
+   "role": "Purchase User"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+=======
  "modified": "2022-04-28 11:10:07.233561",
  "modified_by": "Administrator",
  "module": "Accounts",
@@ -21,13 +47,18 @@
  "report_type": "Script Report",
  "roles": [
   {
+>>>>>>> branch_main
    "role": "Accounts User"
   },
   {
    "role": "Auditor"
   },
   {
+<<<<<<< HEAD
+   "role": "Employee Self Service"
+=======
    "role": "Accounts Manager"
+>>>>>>> branch_main
   }
  ]
 }

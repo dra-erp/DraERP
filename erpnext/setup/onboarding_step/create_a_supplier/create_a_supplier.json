@@ -1,7 +1,7 @@
 {
  "action": "Create Entry",
  "action_label": "Let\u2019s create your first Supplier",
- "creation": "2020-05-14 22:09:10.043554",
+ "creation": "2022-02-10 13:22:40.808132",
  "description": "# Create a Supplier\n\nAlso known as Vendor, is a master at the center of your purchase transactions. Suppliers are linked in Request for Quotation, Purchase Orders, Receipts, and Payments. Suppliers can be either numbered or identified by name.\n\nThrough Supplier\u2019s master, you can effectively track essentials like:\n - Supplier\u2019s multiple address and contacts\n - Account Receivables\n - Credit Limit and Credit Period\n",
  "docstatus": 0,
  "doctype": "Onboarding Step",
@@ -9,7 +9,7 @@
  "is_complete": 0,
  "is_single": 0,
  "is_skipped": 0,
- "modified": "2021-12-15 14:21:23.518301",
+ "modified": "2022-04-12 11:06:44.124125",
  "modified_by": "Administrator",
  "name": "Create a Supplier",
  "owner": "Administrator",

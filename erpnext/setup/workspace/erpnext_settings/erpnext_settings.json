@@ -10,7 +10,8 @@
  "idx": 0,
  "label": "ERPNext Settings",
  "links": [],
- "modified": "2022-05-24 17:01:34.176005",
+
+ "modified": "2022-06-08 08:27:48.659099",
  "modified_by": "Administrator",
  "module": "Setup",
  "name": "ERPNext Settings",

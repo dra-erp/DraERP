@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+# Copyright (c) 2022, Frappe Technologies Pvt. Ltd. and contributors
+# For license information, please see license.txt
+
+# import frappe
+
+def execute(filters=None):
+	columns, data = [], []
+	return columns, data
+=======
 # Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 # Author: Nghĩa+Phát 
@@ -27,3 +37,4 @@ def execute(filters=None):
 
 	columns = get_columns(filters.periodicity, period_list, filters.accumulated_values, filters.company)
 	return columns, data, None, None, None
+>>>>>>> branch_main

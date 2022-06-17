@@ -1,13 +1,13 @@
 {
  "actions": [],
  "autoname": "naming_series:",
- "creation": "2017-10-23 11:38:54.004355",
+ "creation": "2022-02-10 13:23:17.810769",
  "doctype": "DocType",
  "document_type": "Document",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "asset",
+  "congcu_asset",
   "company",
   "column_break_2",
   "asset_name",
@@ -134,15 +134,6 @@
    "read_only": 1
   },
   {
-   "columns": 1,
-   "fieldname": "asset",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Asset",
-   "options": "Asset",
-   "reqd": 1
-  },
-  {
    "fetch_from": "asset.asset_name",
    "fieldname": "asset_name",
    "fieldtype": "Read Only",
@@ -259,15 +250,25 @@
    "label": "Stock Entry",
    "options": "Stock Entry",
    "read_only": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "congcu_asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "CongCu_Asset",
+   "options": "CongCu_Asset",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-06-25 13:14:38.307723",
+ "modified": "2022-02-25 13:58:45.564475",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Asset Repair",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
@@ -303,6 +304,7 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "title_field": "asset_name",
  "track_changes": 1,
  "track_seen": 1

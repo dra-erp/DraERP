@@ -1,5 +1,14 @@
 // Copyright (c) 2022, Frappe Technologies Pvt. Ltd. and contributors
 // For license information, please see license.txt
+<<<<<<< HEAD
+/* eslint-disable */
+
+frappe.query_reports["bảng kết quả hoạt động kinh doanh"] = {
+	"filters": [
+
+	]
+};
+=======
 /* eslint-disable 
 
 Author: Nghĩa+Phát 
@@ -12,3 +21,4 @@ frappe.require("assets/erpnext/js/ket_qua_kinh_doanh.js", function() {
 
 	erpnext.utils.add_dimensions('Bảng Kết Quả Hoạt Động Kinh Doanh', 10);
 });
+>>>>>>> branch_main

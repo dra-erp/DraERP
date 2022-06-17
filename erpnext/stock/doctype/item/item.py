@@ -196,14 +196,14 @@ class Item(Document):
 
 	def validate_fixed_asset(self):
 		if self.is_fixed_asset:
-			if self.is_stock_item:
-				frappe.throw(_("Fixed Asset Item must be a non-stock item."))
+			# if self.is_stock_item:
+			# 	frappe.throw(_("Fixed Asset Item must be a non-stock item."))
 
-			if not self.asset_category:
-				frappe.throw(_("Asset Category is mandatory for Fixed Asset item"))
+			if (  (not self.asset_category) and  (not self.tools_category)) : # khôi sửa
+				frappe.throw(_("Asset Category OR Tool Category is mandatory for Fixed Asset item"))
 
-			if self.stock_ledger_created():
-				frappe.throw(_("Cannot be a fixed asset item as Stock Ledger is created."))
+			# if self.stock_ledger_created(): // khôi sửa 
+			# 	frappe.throw(_("Cannot be a fixed asset item as Stock Ledger is created."))
 
 		if not self.is_fixed_asset:
 			asset = frappe.db.get_all("Asset", filters={"item_code": self.name, "docstatus": 1}, limit=1)
@@ -387,7 +387,7 @@ class Item(Document):
 		)
 
 	def on_trash(self):
-		frappe.db.sql("""delete from tabBin where item_code=%s""", self.name)
+		frappe.db.sql("""delete from `tabBin` where item_code=%s""", self.name)
 		frappe.db.sql("delete from `tabItem Price` where item_code=%s", self.name)
 		for variant_of in frappe.get_all("Item", filters={"variant_of": self.name}):
 			frappe.delete_doc("Item", variant_of.name)
@@ -493,7 +493,7 @@ class Item(Document):
 		frappe.db.set_value("Stock Settings", None, "allow_negative_stock", 1)
 
 		repost_stock_for_warehouses = frappe.db.sql_list("""select distinct warehouse
-			from tabBin where item_code=%s""", new_name)
+			from `tabBin` where item_code=%s""", new_name)
 
 		# Delete all existing bins to avoid duplicate bins for the same item and warehouse
 		frappe.db.sql("delete from `tabBin` where item_code=%s", new_name)
@@ -926,7 +926,7 @@ def check_stock_uom_with_bin(item, stock_uom):
 			frappe.throw(_("Default Unit of Measure for Item {0} cannot be changed directly because you have already made some transaction(s) with another UOM. You will need to create a new Item to use a different Default UOM.").format(item))
 
 	bin_list = frappe.db.sql("""
-			select * from tabBin where item_code = %s
+			select * from `tabBin` where item_code = %s
 				and (reserved_qty > 0 or ordered_qty > 0 or indented_qty > 0 or planned_qty > 0)
 				and stock_uom != %s
 			""", (item, stock_uom), as_dict=1)
@@ -935,7 +935,7 @@ def check_stock_uom_with_bin(item, stock_uom):
 		frappe.throw(_("Default Unit of Measure for Item {0} cannot be changed directly because you have already made some transaction(s) with another UOM. You need to either cancel the linked documents or create a new Item.").format(item))
 
 	# No SLE or documents against item. Bin UOM can be changed safely.
-	frappe.db.sql("""update tabBin set stock_uom=%s where item_code=%s""", (stock_uom, item))
+	frappe.db.sql("""update `tabBin` set stock_uom=%s where item_code=%s""", (stock_uom, item))
 
 
 def get_item_defaults(item_code, company):
