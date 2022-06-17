@@ -5,22 +5,22 @@
 frappe.query_reports["Fixed Asset Register"] = {
 	"filters": [
 		{
-			fieldname:"company",
-			label: __("Company"),
-			fieldtype: "Link",
-			options: "Company",
-			default: frappe.defaults.get_user_default("Company"),
-			reqd: 1
+			"fieldname": "company",
+			"label": __("Company"),
+			"fieldtype": "Link",
+			"options": "Company",
+			"default": frappe.defaults.get_user_default("Company"),
+			"reqd": 1
 		},
 		{
-			fieldname:"status",
-			label: __("Status"),
-			fieldtype: "Select",
-			options: "\nIn Location\nDisposed",
-			default: 'In Location'
+			"fieldname": "status",
+			"label": __("Status"),
+			"fieldtype": "Select",
+			"options": "\nIn Location\nDisposed",
+			"default": 'In Location'
 		},
 		{
-			"fieldname":"filter_based_on",
+			"fieldname": "filter_based_on",
 			"label": __("Period Based On"),
 			"fieldtype": "Select",
 			"options": ["Fiscal Year", "Date Range"],
@@ -28,7 +28,7 @@ frappe.query_reports["Fixed Asset Register"] = {
 			"reqd": 1
 		},
 		{
-			"fieldname":"from_date",
+			"fieldname": "from_date",
 			"label": __("Start Date"),
 			"fieldtype": "Date",
 			"default": frappe.datetime.add_months(frappe.datetime.nowdate(), -12),
@@ -36,7 +36,7 @@ frappe.query_reports["Fixed Asset Register"] = {
 			"reqd": 1
 		},
 		{
-			"fieldname":"to_date",
+			"fieldname": "to_date",
 			"label": __("End Date"),
 			"fieldtype": "Date",
 			"default": frappe.datetime.nowdate(),
@@ -44,7 +44,7 @@ frappe.query_reports["Fixed Asset Register"] = {
 			"reqd": 1
 		},
 		{
-			"fieldname":"from_fiscal_year",
+			"fieldname": "from_fiscal_year",
 			"label": __("Start Year"),
 			"fieldtype": "Link",
 			"options": "Fiscal Year",
@@ -53,7 +53,7 @@ frappe.query_reports["Fixed Asset Register"] = {
 			"reqd": 1
 		},
 		{
-			"fieldname":"to_fiscal_year",
+			"fieldname": "to_fiscal_year",
 			"label": __("End Year"),
 			"fieldtype": "Link",
 			"options": "Fiscal Year",
@@ -62,7 +62,7 @@ frappe.query_reports["Fixed Asset Register"] = {
 			"reqd": 1
 		},
 		{
-			"fieldname":"date_based_on",
+			"fieldname": "date_based_on",
 			"label": __("Date Based On"),
 			"fieldtype": "Select",
 			"options": ["Purchase Date", "Available For Use Date"],
@@ -70,35 +70,35 @@ frappe.query_reports["Fixed Asset Register"] = {
 			"reqd": 1
 		},
 		{
-			fieldname:"asset_category",
-			label: __("Asset Category"),
-			fieldtype: "Link",
-			options: "Asset Category"
+			"fieldname": "asset_category",
+			"label": __("Asset Category"),
+			"fieldtype": "Link",
+			"options": "Asset Category"
 		},
 		{
-			fieldname:"finance_book",
-			label: __("Finance Book"),
-			fieldtype: "Link",
-			options: "Finance Book"
+			"fieldname": "finance_book",
+			"label": __("Finance Book"),
+			"fieldtype": "Link",
+			"options": "Finance Book"
 		},
 		{
-			fieldname:"cost_center",
-			label: __("Cost Center"),
-			fieldtype: "Link",
-			options: "Cost Center"
+			"fieldname": "cost_center",
+			"label": __("Cost Center"),
+			"fieldtype": "Link",
+			"options": "Cost Center"
 		},
 		{
-			fieldname:"group_by",
-			label: __("Group By"),
-			fieldtype: "Select",
-			options: ["--Select a group--", "Asset Category", "Location"],
-			default: "--Select a group--",
-			reqd: 1
+			"fieldname": "group_by",
+			"label": __("Group By"),
+			"fieldtype": "Select",
+			"options": ["--Select a group--", "Asset Category", "Location"],
+			"default": "--Select a group--",
+			"reqd": 1
 		},
 		{
-			fieldname:"is_existing_asset",
-			label: __("Is Existing Asset"),
-			fieldtype: "Check"
+			"fieldname": "is_existing_asset",
+			"label": __("Is Existing Asset"),
+			"fieldtype": "Check"
 		},
 	]
 };

@@ -40,7 +40,11 @@
    "type": "Link"
   }
  ],
+<<<<<<< HEAD
  "modified": "2022-06-08 08:27:52.257419",
+=======
+ "modified": "2022-05-24 17:01:37.458861",
+>>>>>>> branch_main
  "modified_by": "Administrator",
  "module": "Utilities",
  "name": "Utilities",
@@ -49,7 +53,11 @@
  "public": 1,
  "restrict_to_domain": "",
  "roles": [],
+<<<<<<< HEAD
  "sequence_id": 27.0,
+=======
+ "sequence_id": 28.0,
+>>>>>>> branch_main
  "shortcuts": [],
  "title": "Utilities"
 }

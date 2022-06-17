@@ -1235,7 +1235,11 @@
    "type": "Link"
   }
  ],
+<<<<<<< HEAD
  "modified": "2022-06-08 08:27:46.590200",
+=======
+ "modified": "2022-05-24 17:01:32.821782",
+>>>>>>> branch_main
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounting",
