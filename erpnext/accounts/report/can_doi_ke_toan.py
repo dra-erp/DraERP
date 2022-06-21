@@ -4,6 +4,7 @@
 
 from calendar import c
 from cgi import test
+from cmath import e
 import functools
 import math
 import re
@@ -13,6 +14,7 @@ from braintree import TransactionSearch
 import frappe
 from frappe import _
 from frappe.utils import add_days, add_months, cint, cstr, flt, formatdate, get_first_day, getdate, list_to_str
+from html2text import element_style
 from pymysql import NULL
 
 from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
@@ -73,8 +75,8 @@ def get_period_list(from_fiscal_year, to_fiscal_year, period_start_date, period_
             period.to_date = year_end_date
 
         # if not ignore_fiscal_year:
-        # 	period.to_date_fiscal_year = get_fiscal_year(period.to_date, company=company)[0]
-        # 	period.from_date_fiscal_year_start_date = get_fiscal_year(period.from_date, company=company)[1]
+        #   period.to_date_fiscal_year = get_fiscal_year(period.to_date, company=company)[0]
+        #   period.from_date_fiscal_year_start_date = get_fiscal_year(period.from_date, company=company)[1]
 
         period_list.append(period)
 
@@ -108,8 +110,8 @@ def get_period_list(from_fiscal_year, to_fiscal_year, period_start_date, period_
 
 def get_fiscal_year_data(from_fiscal_year, to_fiscal_year):
     fiscal_year = frappe.db.sql("""select min(year_start_date) as year_start_date,
-		max(year_end_date) as year_end_date from `tabFiscal Year` where
-		name between %(from_fiscal_year)s and %(to_fiscal_year)s""",
+        max(year_end_date) as year_end_date from `tabFiscal Year` where
+        name between %(from_fiscal_year)s and %(to_fiscal_year)s""",
             {'from_fiscal_year': from_fiscal_year, 'to_fiscal_year': to_fiscal_year}, as_dict=1)
 
     return fiscal_year[0] if fiscal_year else {}
@@ -190,13 +192,13 @@ def tinh_No_Cua_Yearly_Finance_Book_isNull(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     return flt(frappe.db.sql("""
-			select sum(debit)-sum(credit)
-			from `tabGL Entry` as gle
-			where (gle.account LIKE %(account)s)
-				and (gle.company = %(company)s)
-				and (gle.finance_book is null or gle.finance_book =''  )
-				and (gle.fiscal_year between 2000 AND %(nam)s)
-			""",test,as_list=True)[0][0],2)			
+            select sum(debit)-sum(credit)
+            from `tabGL Entry` as gle
+            where (gle.account LIKE %(account)s)
+                and (gle.company = %(company)s)
+                and (gle.finance_book is null or gle.finance_book =''  )
+                and (gle.fiscal_year between 2000 AND %(nam)s)
+            """,test,as_list=True)[0][0],2)         
 def tinh_Co_Cua_Yearly_Finance_Book_isNull(nam,account,company,finance_book):
     test={
             "nam":nam,
@@ -205,13 +207,13 @@ def tinh_Co_Cua_Yearly_Finance_Book_isNull(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     return flt(frappe.db.sql("""
-			select sum(credit)-sum(debit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and (gle.finance_book is null or gle.finance_book ='' )
-				and gle.fiscal_year between 2000 AND %(nam)s
-			""",test,as_list=True)[0][0],2)
+            select sum(credit)-sum(debit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and (gle.finance_book is null or gle.finance_book ='' )
+                and gle.fiscal_year between 2000 AND %(nam)s
+            """,test,as_list=True)[0][0],2)
 
 ## Hàm tính Nợ - Có của năm có Finance book
 def tinh_No_Cua_Yearly_Finance_Book(nam,account,company,finance_book):
@@ -226,13 +228,13 @@ def tinh_No_Cua_Yearly_Finance_Book(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     return (flt(frappe.db.sql("""
-			select sum(debit)-sum(credit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s
-				and gle.fiscal_year between 2000 AND %(nam)s
-			""",test,as_list=True)[0][0],2)
+            select sum(debit)-sum(credit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s
+                and gle.fiscal_year between 2000 AND %(nam)s
+            """,test,as_list=True)[0][0],2)
                     + tinh_No_Cua_Yearly_Finance_Book_isNull(nam,account,company,finance_book))
 
 def tinh_Co_Cua_Yearly_Finance_Book(nam,account,company,finance_book):
@@ -247,13 +249,13 @@ def tinh_Co_Cua_Yearly_Finance_Book(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     return (flt(frappe.db.sql("""
-			select sum(credit)-sum(debit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s
-				and gle.fiscal_year between 2000 AND %(nam)s
-			""",test,as_list=True)[0][0],2)
+            select sum(credit)-sum(debit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s
+                and gle.fiscal_year between 2000 AND %(nam)s
+            """,test,as_list=True)[0][0],2)
                     + tinh_Co_Cua_Yearly_Finance_Book_isNull(nam,account,company,finance_book))
 ### Hàm với điều kiện > 0 có Finance book
 def tinh_No_Cua_Yearly_If_Pos(nam,account,company,finance_book):
@@ -264,25 +266,24 @@ def tinh_No_Cua_Yearly_If_Pos(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     a = flt(frappe.db.sql("""
-			select sum(debit)-sum(credit)
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.fiscal_year between 2000 AND %(nam)s
-			""",test,as_list=True)[0][0],2)
+            select sum(debit)-sum(credit)
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.fiscal_year between 2000 AND %(nam)s
+            """,test,as_list=True)[0][0],2)
     b = flt(frappe.db.sql("""
-			select sum(debit)-sum(credit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s 
-				and gle.fiscal_year between 2000 AND %(nam)s
-			""",test,as_list=True)[0][0],2)      
+            select sum(debit)-sum(credit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s 
+                and gle.fiscal_year between 2000 AND %(nam)s
+            """,test,as_list=True)[0][0],2)      
     if a > 0:
         return a + b
     else:
         return 0
-
 
 def tinh_No_Cua_Yearly_If_Pos_ma153(nam,account,company,finance_book):
     test={
@@ -292,12 +293,12 @@ def tinh_No_Cua_Yearly_If_Pos_ma153(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     a = frappe.db.sql("""
-			select (sum(debit)-sum(credit)) total
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.fiscal_year between 2000 AND %(nam)s
-				group by Account having total > 0""",test,as_dict=True)  
+            select (sum(debit)-sum(credit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.fiscal_year between 2000 AND %(nam)s
+                group by Account having total > 0""",test,as_dict=True)  
     ma153 = 0
     for party in a :
         ma153+=party.total  
@@ -310,12 +311,12 @@ def tinh_No_Cua_Yearly_If_Pos_ma313(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     a = frappe.db.sql("""
-			select (sum(debit)-sum(credit)) total
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.fiscal_year between 2000 AND %(nam)s
-				group by Account having total > 0""",test,as_dict=True)  
+            select (sum(debit)-sum(credit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.fiscal_year between 2000 AND %(nam)s
+                group by Account having total > 0""",test,as_dict=True)  
     ma313 = 0
     for party in a :
         ma313+=party.total  
@@ -329,12 +330,12 @@ def tinh_Co_Cua_Yearly_If_Pos_ma313(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     a = frappe.db.sql("""
-			select (sum(credit)-sum(debit)) total
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.fiscal_year between 2000 AND %(nam)s
-				group by Account having total > 0""",test,as_dict=True)  
+            select (sum(credit)-sum(debit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.fiscal_year between 2000 AND %(nam)s
+                group by Account having total > 0""",test,as_dict=True)  
     ma313 = 0
     for party in a :
         ma313+=party.total  
@@ -350,24 +351,24 @@ def tinh_Co_Cua_Yearly_If_Pos(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     a = flt(frappe.db.sql("""
-			select sum(credit)-sum(debit)
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.fiscal_year between 2000 AND %(nam)s
-			""",test,as_list=True)[0][0],2)
+            select sum(credit)-sum(debit)
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.fiscal_year between 2000 AND %(nam)s
+            """,test,as_list=True)[0][0],2)
     b = flt(frappe.db.sql("""
-			select sum(credit)-sum(debit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s
-				and gle.fiscal_year between 2000 AND %(nam)s
-			""",test,as_list=True)[0][0],2)      
+            select sum(credit)-sum(debit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s
+                and gle.fiscal_year between 2000 AND %(nam)s
+            """,test,as_list=True)[0][0],2)      
     if a > 0:
         return a + b
     else:
-        return 0	
+        return 0    
 
 ## Điều kiện Nợ - Có luôn âm có finance_book
 def tinh_No_Cua_Yearly_If_Nega(nam,account,company,finance_book):
@@ -382,13 +383,13 @@ def tinh_No_Cua_Yearly_If_Nega(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     a = (flt(frappe.db.sql("""
-			select sum(debit)-sum(credit) 
-			from `tabGL Entry` as gle
-			where (gle.account like %(account)s) 
-				AND (gle.company = %(company)s)
-				AND (gle.finance_book = %(finance_book)s)
-				AND (gle.fiscal_year between 2000 and %(nam)s) 
-			""",test,as_list=True)[0][0],2)
+            select sum(debit)-sum(credit) 
+            from `tabGL Entry` as gle
+            where (gle.account like %(account)s) 
+                AND (gle.company = %(company)s)
+                AND (gle.finance_book = %(finance_book)s)
+                AND (gle.fiscal_year between 2000 and %(nam)s) 
+            """,test,as_list=True)[0][0],2)
                     + tinh_No_Cua_Yearly_Finance_Book_isNull(nam,account,company,finance_book))
     if a>0:
         return -a
@@ -406,13 +407,13 @@ def tinh_Co_Cua_Yearly_If_Nega(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     a = (flt(frappe.db.sql("""
-			select sum(credit)-sum(debit) 
-			from `tabGL Entry` as gle
-			where (gle.account like %(account)s) 
-				and (gle.company = %(company)s)
-				and (gle.finance_book = %(finance_book)s)
-				and (gle.fiscal_year between 2000 and %(nam)s) 
-			""",test,as_list=True)[0][0],2)
+            select sum(credit)-sum(debit) 
+            from `tabGL Entry` as gle
+            where (gle.account like %(account)s) 
+                and (gle.company = %(company)s)
+                and (gle.finance_book = %(finance_book)s)
+                and (gle.fiscal_year between 2000 and %(nam)s) 
+            """,test,as_list=True)[0][0],2)
                     + tinh_Co_Cua_Yearly_Finance_Book_isNull(nam,account,company,finance_book))
     if a > 0:
         return -a
@@ -428,22 +429,22 @@ def tinh_No_Yearly_Finance_Book_Party_Pos(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     list = frappe.db.sql("""
-    		select (sum(debit)-sum(credit)) total
-    		from `tabGL Entry` as gle
-    		where gle.account LIKE %(account)s
-    			and gle.company = %(company)s
+            select (sum(debit)-sum(credit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
                 and gle.finance_book = %(finance_book)s
                 and is_cancelled = 0
-    			and (gle.fiscal_year between 2000 AND %(nam)s or ifnull(is_opening, 'No') = 'Yes')
-    			group by account,party having total > 0""",test,as_dict=True)
+                and (gle.fiscal_year between 2000 AND %(nam)s or ifnull(is_opening, 'No') = 'Yes')
+                group by account,party having total > 0""",test,as_dict=True)
     a = frappe.db.sql("""
-			select (sum(debit)-sum(credit)) total
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
+            select (sum(debit)-sum(credit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
                 and is_cancelled = 0
-				and (gle.fiscal_year between 2000 AND %(nam)s or ifnull(is_opening, 'No') = 'Yes')
-				group by account,party having total > 0""",test,as_dict=True)  
+                and (gle.fiscal_year between 2000 AND %(nam)s or ifnull(is_opening, 'No') = 'Yes')
+                group by account,party having total > 0""",test,as_dict=True)  
     Prt = 0
     for party in list :
         Prt+=party.total  
@@ -459,31 +460,30 @@ def tinh_Co_Yearly_Finance_Book_Party_Pos(nam,account,company,finance_book):
             "finance_book":finance_book
     }
     list = frappe.db.sql("""
-    		SELECT 
-		ACCOUNT,party,(SUM(credit)-SUM(debit)) AS total
-		from `tabGL Entry`
-		where
-			company=%(company)s
-			AND (account LIKE %(account)s
-				)
+            SELECT 
+        ACCOUNT,party,(SUM(credit)-SUM(debit)) AS total
+        from `tabGL Entry`
+        where
+            company=%(company)s
+            AND (account LIKE %(account)s
+                )
             and finance_book = %(finance_book)s 
-			and is_cancelled = 0
-			AND fiscal_year<=%(nam)s
-			GROUP BY account,party
-			HAVING total > 0""",test,as_dict=True)
+            and is_cancelled = 0
+            AND fiscal_year<=%(nam)s
+            GROUP BY account,party
+            HAVING total > 0""",test,as_dict=True)
     a = frappe.db.sql("""
-			SELECT 
-		ACCOUNT,party,(SUM(credit)-SUM(debit)) AS total
-		from `tabGL Entry`
-		where
-			company=%(company)s
-			AND (account LIKE %(account)s
-				)
-
-			and is_cancelled = 0
-			AND fiscal_year<=%(nam)s
-			GROUP BY account,party
-			HAVING total > 0
+            SELECT 
+        ACCOUNT,party,(SUM(credit)-SUM(debit)) AS total
+        from `tabGL Entry`
+        where
+            company=%(company)s
+            AND (account LIKE %(account)s
+                )
+            and is_cancelled = 0
+            AND fiscal_year<=%(nam)s
+            GROUP BY account,party
+            HAVING total > 0
             """,test,as_dict=True)  
     Prt = 0
     for party in list :
@@ -496,374 +496,455 @@ def tinh_Co_Yearly_Finance_Book_Party_Pos(nam,account,company,finance_book):
 ### Hàm tính Nợ - Có của năm có Finance book isNull PostingDate
 def tinh_No_Yearly_Finance_Book_isNull_PostingDate_Opening(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     return flt(frappe.db.sql("""
-			select sum(debit)-sum(credit)
-			from `tabGL Entry` as gle
-			where (gle.account LIKE %(account)s)
-				and (gle.company = %(company)s)
-				and (gle.finance_book is null or gle.finance_book ='' ) 
+            select sum(debit)-sum(credit)
+            from `tabGL Entry` as gle
+            where (gle.account LIKE %(account)s)
+                and (gle.company = %(company)s)
+                and (gle.finance_book is null or gle.finance_book ='' ) 
                 and (gle.posting_date<= %(to_date)s)
-			""",test,as_list=True)[0][0],2)	
+            """,test,as_list=True)[0][0],2) 
 def tinh_No_Yearly_Finance_Book_isNull_PostingDate_Mid(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     return flt(frappe.db.sql("""
-			select sum(debit)-sum(credit)
-			from `tabGL Entry` as gle
-			where (gle.account LIKE %(account)s)
-				and (gle.company = %(company)s)
-				and (gle.finance_book is null or gle.finance_book ='' ) 
+            select sum(debit)-sum(credit)
+            from `tabGL Entry` as gle
+            where (gle.account LIKE %(account)s)
+                and (gle.company = %(company)s)
+                and (gle.finance_book is null or gle.finance_book ='' ) 
                 and (gle.posting_date<= %(to_date)s)
                 and (gle.posting_date>= %(from_date)s)
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
 def tinh_Co_Yearly_Finance_Book_isNull_PostingDate_Opening(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     return flt(frappe.db.sql("""
-			select sum(credit)-sum(debit)
-			from `tabGL Entry` as gle
-			where (gle.account LIKE %(account)s)
-				and (gle.company = %(company)s)
-				and (gle.finance_book is null or gle.finance_book ='' ) 
+            select sum(credit)-sum(debit)
+            from `tabGL Entry` as gle
+            where (gle.account LIKE %(account)s)
+                and (gle.company = %(company)s)
+                and (gle.finance_book is null or gle.finance_book ='' ) 
                 and (gle.posting_date<= %(to_date)s)
-			""",test,as_list=True)[0][0],2)	
+            """,test,as_list=True)[0][0],2) 
 def tinh_Co_Yearly_Finance_Book_isNull_PostingDate_Mid(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     return flt(frappe.db.sql("""
-			select sum(credit)-sum(debit)
-			from `tabGL Entry` as gle
-			where (gle.account LIKE %(account)s)
-				and (gle.company = %(company)s)
-				and (gle.finance_book is null or gle.finance_book ='' ) 
+            select sum(credit)-sum(debit)
+            from `tabGL Entry` as gle
+            where (gle.account LIKE %(account)s)
+                and (gle.company = %(company)s)
+                and (gle.finance_book is null or gle.finance_book ='' ) 
                 and (gle.posting_date<= %(to_date)s)
                 and (gle.posting_date>= %(from_date)s)
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
 ## Hàm tính Nợ - Có của năm có Finance book PostingDate
-def tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,account,company,finance_book):
+def tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,account,company,finance_book):
     if finance_book: 
         finance_book=finance_book
     else:
         finance_book=frappe.get_cached_value('Company',company,  "default_finance_book")
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     return (flt(frappe.db.sql("""
-			select sum(debit)-sum(credit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s
+            select sum(debit)-sum(credit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
                     + tinh_No_Yearly_Finance_Book_isNull_PostingDate_Opening(nam,account,company,finance_book))
 
-def tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,account,company,finance_book):
+def tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,account,company,finance_book):
     if finance_book: 
         finance_book=finance_book
     else:
         finance_book=frappe.get_cached_value('Company',company,  "default_finance_book")
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     return (flt(frappe.db.sql("""
-			select sum(debit)-sum(credit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s
+            select sum(debit)-sum(credit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s
                 and gle.posting_date>= %(from_date)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
                     + tinh_No_Yearly_Finance_Book_isNull_PostingDate_Mid(nam,account,company,finance_book))
 
-def tinh_Co_Yearly_Finance_Book_PostingDate_Opening(nam,account,company,finance_book):
+def tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,account,company,finance_book):
     if finance_book: 
         finance_book=finance_book
     else:
         finance_book=frappe.get_cached_value('Company',company,  "default_finance_book")
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     return (flt(frappe.db.sql("""
-			select sum(credit)-sum(debit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s
+            select sum(credit)-sum(debit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
                     + tinh_Co_Yearly_Finance_Book_isNull_PostingDate_Opening(nam,account,company,finance_book))
 
-def tinh_Co_Yearly_Finance_Book_PostingDate_Mid(nam,account,company,finance_book):
+def tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,account,company,finance_book):
     if finance_book: 
         finance_book=finance_book
     else:
         finance_book=frappe.get_cached_value('Company',company,  "default_finance_book")
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     return (flt(frappe.db.sql("""
-			select sum(credit)-sum(debit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s
+            select sum(credit)-sum(debit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s
                 and gle.posting_date>= %(from_date)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
                     + tinh_Co_Yearly_Finance_Book_isNull_PostingDate_Mid(nam,account,company,finance_book))
 
 ### Hàm với điều kiện > 0 có Finance book
-def tinh_No_Yearly_Pos_PostingDate_Opening(nam,account,company,finance_book):
+def tinh_No_Cua_Yearly_If_Pos_PostingDate_Opening(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     a = flt(frappe.db.sql("""
-			select sum(debit)-sum(credit)
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
+            select sum(debit)-sum(credit)
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
     b = flt(frappe.db.sql("""
-			select sum(debit)-sum(credit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s
+            select sum(debit)-sum(credit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)      
+            """,test,as_list=True)[0][0],2)      
     if a > 0:
         return a + b
     else:
         return 0
-def tinh_No_Yearly_Pos_PostingDate_Mid(nam,account,company,finance_book):
+def tinh_No_Cua_Yearly_If_Pos_PostingDate_Mid(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     a = flt(frappe.db.sql("""
-			select sum(debit)-sum(credit)
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
+            select sum(debit)-sum(credit)
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
                 and gle.posting_date>= %(from_date)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
     b = flt(frappe.db.sql("""
-			select sum(debit)-sum(credit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s
+            select sum(debit)-sum(credit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s
                 and gle.posting_date>= %(from_date)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)      
+            """,test,as_list=True)[0][0],2)      
     if a > 0:
         return a + b
     else:
         return 0
 
-def tinh_Co_Yearly_Pos_PostingDate_Opening(nam,account,company,finance_book):
+def tinh_Co_Cua_Yearly_If_Pos_PostingDate_Opening(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     a = flt(frappe.db.sql("""
-			select sum(credit)-sum(debit)
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
+            select sum(credit)-sum(debit)
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
     b = flt(frappe.db.sql("""
-			select sum(credit)-sum(debit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s
+            select sum(credit)-sum(debit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)      
+            """,test,as_list=True)[0][0],2)      
     if a > 0:
         return a + b
     else:
         return 0
-def tinh_Co_Yearly_Pos_PostingDate_Mid(nam,account,company,finance_book):
+def tinh_Co_Cua_Yearly_If_Pos_PostingDate_Mid(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     a = flt(frappe.db.sql("""
-			select sum(credit)-sum(debit)
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
+            select sum(credit)-sum(debit)
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
                 and gle.posting_date>= %(from_date)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
     b = flt(frappe.db.sql("""
-			select sum(credit)-sum(debit) 
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-				and gle.finance_book=%(finance_book)s
+            select sum(credit)-sum(debit) 
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book=%(finance_book)s
                 and gle.posting_date>= %(from_date)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)      
+            """,test,as_list=True)[0][0],2)      
     if a > 0:
         return a + b
     else:
-        return 0		
+        return 0   
 
 ## Điều kiện Nợ - Có luôn âm có finance_book
-def tinh_No_Yearly_Nega_PostingDate_Opening(nam,account,company,finance_book):
+def tinh_No_Cua_Yearly_If_Nega_PostingDate_Opening(nam,account,company,finance_book):
     if finance_book: 
         finance_book=finance_book
     else:
         finance_book=frappe.get_cached_value('Company',company, "default_finance_book")
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     a = (flt(frappe.db.sql("""
-			select sum(debit)-sum(credit) 
-			from `tabGL Entry` as gle
-			where (gle.account like %(account)s) 
-				AND (gle.company = %(company)s)
-				AND (gle.finance_book = %(finance_book)s)
+            select sum(debit)-sum(credit) 
+            from `tabGL Entry` as gle
+            where (gle.account like %(account)s) 
+                AND (gle.company = %(company)s)
+                AND (gle.finance_book = %(finance_book)s)
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
                     + tinh_No_Yearly_Finance_Book_isNull_PostingDate_Opening(nam,account,company,finance_book))
     if a>0:
         return -a
     else:
         return a
-def tinh_No_Yearly_Nega_PostingDate_Mid(nam,account,company,finance_book):
+def tinh_No_Cua_Yearly_If_Nega_PostingDate_Mid(nam,account,company,finance_book):
     if finance_book: 
         finance_book=finance_book
     else:
         finance_book=frappe.get_cached_value('Company',company, "default_finance_book")
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     a = (flt(frappe.db.sql("""
-			select sum(debit)-sum(credit) 
-			from `tabGL Entry` as gle
-			where (gle.account like %(account)s) 
-				AND (gle.company = %(company)s)
-				AND (gle.finance_book = %(finance_book)s)
+            select sum(debit)-sum(credit) 
+            from `tabGL Entry` as gle
+            where (gle.account like %(account)s) 
+                AND (gle.company = %(company)s)
+                AND (gle.finance_book = %(finance_book)s)
                 and gle.posting_date>= %(from_date)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
                     + tinh_No_Yearly_Finance_Book_isNull_PostingDate_Mid(nam,account,company,finance_book))
     if a>0:
         return -a
     else:
         return a
-def tinh_Co_Yearly_Nega_PostingDate_Opening(nam,account,company,finance_book):
+def tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,account,company,finance_book):
+    test={
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
+            "account":account,
+            "company":company,
+            "finance_book":finance_book
+    }
+    a = frappe.db.sql("""
+            select (sum(debit)-sum(credit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.posting_date<= %(to_date)s
+                group by Account having total > 0""",test,as_dict=True)  
+    ma313 = 0
+    for party in a :
+        ma313+=party.total  
+    return ma313
+def tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,account,company,finance_book):
+    test={
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
+            "account":account,
+            "company":company,
+            "finance_book":finance_book
+    }
+    a = frappe.db.sql("""
+            select (sum(debit)-sum(credit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.posting_date>= %(from_date)s
+                and gle.posting_date<= %(to_date)s
+                group by Account having total > 0""",test,as_dict=True)  
+    ma313 = 0
+    for party in a :
+        ma313+=party.total  
+    return ma313  
+
+def tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,account,company,finance_book):
+    test={
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
+            "account":account,
+            "company":company,
+            "finance_book":finance_book
+    }
+    a = frappe.db.sql("""
+            select (sum(credit)-sum(debit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.posting_date<= %(to_date)s
+                group by Account having total > 0""",test,as_dict=True)  
+    ma313 = 0
+    for party in a :
+        ma313+=party.total  
+    return ma313
+def tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,account,company,finance_book):
+    test={
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
+            "account":account,
+            "company":company,
+            "finance_book":finance_book
+    }
+    a = frappe.db.sql("""
+            select (sum(credit)-sum(debit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.posting_date>= %(from_date)s
+                and gle.posting_date<= %(to_date)s
+                group by Account having total > 0""",test,as_dict=True)  
+    ma313 = 0
+    for party in a :
+        ma313+=party.total  
+    return ma313 
+
+
+def tinh_Co_Cua_Yearly_If_Nega_PostingDate_Opening(nam,account,company,finance_book):
     if finance_book: 
         finance_book=finance_book
     else:
         finance_book=frappe.get_cached_value('Company',company, "default_finance_book")
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     a = (flt(frappe.db.sql("""
-			select sum(credit)-sum(debit) 
-			from `tabGL Entry` as gle
-			where (gle.account like %(account)s) 
-				and (gle.company = %(company)s)
-				and (gle.finance_book = %(finance_book)s)
+            select sum(credit)-sum(debit) 
+            from `tabGL Entry` as gle
+            where (gle.account like %(account)s) 
+                and (gle.company = %(company)s)
+                and (gle.finance_book = %(finance_book)s)
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
                     + tinh_Co_Yearly_Finance_Book_isNull_PostingDate_Opening(nam,account,company,finance_book))
     if a > 0:
         return -a
     else:
         return a
-def tinh_Co_Yearly_Nega_PostingDate_Mid(nam,account,company,finance_book):
+def tinh_Co_Cua_Yearly_If_Nega_PostingDate_Mid(nam,account,company,finance_book):
     if finance_book: 
         finance_book=finance_book
     else:
         finance_book=frappe.get_cached_value('Company',company, "default_finance_book")
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     a = (flt(frappe.db.sql("""
-			select sum(credit)-sum(debit) 
-			from `tabGL Entry` as gle
-			where (gle.account like %(account)s) 
-				and (gle.company = %(company)s)
-				and (gle.finance_book = %(finance_book)s)
+            select sum(credit)-sum(debit) 
+            from `tabGL Entry` as gle
+            where (gle.account like %(account)s) 
+                and (gle.company = %(company)s)
+                and (gle.finance_book = %(finance_book)s)
                 and gle.posting_date>= %(from_date)s
                 and gle.posting_date<= %(to_date)s
-			""",test,as_list=True)[0][0],2)
+            """,test,as_list=True)[0][0],2)
                     + tinh_Co_Yearly_Finance_Book_isNull_PostingDate_Mid(nam,account,company,finance_book))
     if a > 0:
         return -a
@@ -871,60 +952,66 @@ def tinh_Co_Yearly_Nega_PostingDate_Mid(nam,account,company,finance_book):
         return a
 
 ### Lấy dữ liệu Nợ - Có lấy dương của Party có Finance book
-def tinh_No_Yearly_Party_Pos_PostingDate_Opening(nam,account,company,finance_book):
+def tinh_No_Yearly_Finance_Book_Party_Pos_Opening(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     list = frappe.db.sql("""
-    		select (sum(debit)-sum(credit)) total
-    		from `tabGL Entry` as gle
-    		where gle.account LIKE %(account)s
-    			and gle.company = %(company)s
+            select (sum(debit)-sum(credit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
                 and gle.finance_book = %(finance_book)s
+                and is_cancelled = 0
                 and gle.posting_date<= %(to_date)s
-    			group by party having total > 0""",test,as_dict=True)
+                
+                group by account,party having total > 0""",test,as_dict=True)
     a = frappe.db.sql("""
-			select (sum(debit)-sum(credit)) total
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
+            select (sum(debit)-sum(credit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and is_cancelled = 0
                 and gle.posting_date<= %(to_date)s
-				group by party having total > 0""",test,as_dict=True)  
+               
+                group by account,party having total > 0""",test,as_dict=True) 
     Prt = 0
     for party in list :
         Prt+=party.total  
     for party in a :
         Prt+=party.total  
     return Prt
-def tinh_No_Yearly_Party_Pos_PostingDate_Mid(nam,account,company,finance_book):
+def tinh_No_Yearly_Finance_Book_Party_Pos_Mid(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     list = frappe.db.sql("""
-    		select (sum(debit)-sum(credit)) total
-    		from `tabGL Entry` as gle
-    		where gle.account LIKE %(account)s
-    			and gle.company = %(company)s
+            select (sum(debit)-sum(credit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
                 and gle.finance_book = %(finance_book)s
-                and gle.posting_date>= %(from_date)s
+                and is_cancelled = 0
+                and gle.posting_date> %(from_date)s
                 and gle.posting_date<= %(to_date)s
-    			group by party having total > 0""",test,as_dict=True)
+                group by account,party having total > 0""",test,as_dict=True)
     a = frappe.db.sql("""
-			select (sum(debit)-sum(credit)) total
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
-                and gle.posting_date>= %(from_date)s
+            select (sum(debit)-sum(credit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and is_cancelled = 0
+                and gle.posting_date> %(from_date)s
                 and gle.posting_date<= %(to_date)s
-				group by party having total > 0""",test,as_dict=True)  
+                group by account,party having total > 0""",test,as_dict=True)  
     Prt = 0
     for party in list :
         Prt+=party.total  
@@ -932,79 +1019,84 @@ def tinh_No_Yearly_Party_Pos_PostingDate_Mid(nam,account,company,finance_book):
         Prt+=party.total  
     return Prt  
 
-def tinh_Co_Yearly_Party_Pos_PostingDate_Opening(nam,account,company,finance_book):
+def tinh_Co_Yearly_Finance_Book_Party_Pos_Opening(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     list = frappe.db.sql("""
-    		select (sum(credit)-sum(debit)) total
-    		from `tabGL Entry` as gle
-    		where gle.account LIKE %(account)s
-    			and gle.company = %(company)s
-                and gle.finance_book = %(finance_book)s 
+            select (sum(credit)-sum(debit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book = %(finance_book)s
+                and is_cancelled = 0
                 and gle.posting_date<= %(to_date)s
-    			group by party having total > 0""",test,as_dict=True)
+                group by account,party having total > 0""",test,as_dict=True)
     a = frappe.db.sql("""
-			select (sum(credit)-sum(debit)) total
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
+            select (sum(credit)-sum(debit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and is_cancelled = 0
                 and gle.posting_date<= %(to_date)s
-				group by party having total > 0""",test,as_dict=True)  
+                group by account,party having total > 0""",test,as_dict=True) 
     Prt = 0
     for party in list :
         Prt+=party.total  
     for party in a :
         Prt+=party.total  
     return Prt
-def tinh_Co_Yearly_Party_Pos_PostingDate_Mid(nam,account,company,finance_book):
+def tinh_Co_Yearly_Finance_Book_Party_Pos_Mid(nam,account,company,finance_book):
     test={
-	    	"from_date":nam.from_date,
-		    "to_date":nam.to_date,
+            "from_date":nam.from_date,
+            "to_date":nam.to_date,
             "account":account,
             "company":company,
             "finance_book":finance_book
     }
     list = frappe.db.sql("""
-    		select (sum(credit)-sum(debit)) total
-    		from `tabGL Entry` as gle
-    		where gle.account LIKE %(account)s
-    			and gle.company = %(company)s
-                and gle.finance_book = %(finance_book)s 
+            select (sum(credit)-sum(debit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and gle.finance_book = %(finance_book)s
+                and is_cancelled = 0
                 and gle.posting_date>= %(from_date)s
                 and gle.posting_date<= %(to_date)s
-    			group by party having total > 0""",test,as_dict=True)
+                group by account,party having total > 0""",test,as_dict=True)
     a = frappe.db.sql("""
-			select (sum(credit)-sum(debit)) total
-			from `tabGL Entry` as gle
-			where gle.account LIKE %(account)s
-				and gle.company = %(company)s
+            select (sum(credit)-sum(debit)) total
+            from `tabGL Entry` as gle
+            where gle.account LIKE %(account)s
+                and gle.company = %(company)s
+                and is_cancelled = 0
                 and gle.posting_date>= %(from_date)s
                 and gle.posting_date<= %(to_date)s
-				group by party having total > 0""",test,as_dict=True)  
+                group by account,party having total > 0""",test,as_dict=True)  
     Prt = 0
     for party in list :
         Prt+=party.total  
     for party in a :
         Prt+=party.total  
     return Prt
+
 def get_accounts():
     return frappe.db.sql("""
-		select taisan, maso
-		from `tabBangCanDoiKeToan` order by maso
-		""",as_dict=True)
+        select taisan, maso
+        from `tabBangCanDoiKeToan` order by maso
+        """,as_dict=True)
 
 ### Lọc dữ liệu theo Company - PostingDate_FinanceBook
 def locTheoCompany_PostingDate_FinanceBook(list,nam,company,fiannce_book):
-	l=[]
-	for i in list:
-		if i.company==company and i.posting_date<=nam.to_date and i.posting_date>=nam.from_date:
-			l.append(i)
-	return l
+    l=[]
+    for i in list:
+        if i.company==company and i.posting_date<=nam.to_date and i.posting_date>=nam.from_date:
+            l.append(i)
+    return l
 
 def get_columns(periodicity, period_list, accumulated_values=1, company=True):
     columns = [{
@@ -1045,520 +1137,1615 @@ def get_columns(periodicity, period_list, accumulated_values=1, company=True):
 
     return columns
 
+def tinhMa111(nam,company,finance_book):
+        return ((tinh_No_Cua_Yearly_Finance_Book(nam,'111%%',company,finance_book)) 
+                        + (tinh_No_Cua_Yearly_Finance_Book(nam,'112%%',company,finance_book)) 
+                        + (tinh_No_Cua_Yearly_Finance_Book(nam,'113%%',company,finance_book)))
+def tinhMa112(nam, company,finance_book):
+        return (tinh_No_Cua_Yearly_Finance_Book(nam,'12811%%',company,finance_book) 
+                        + tinh_No_Cua_Yearly_Finance_Book(nam,'12881%%',company,finance_book))
+def tinhMa121(nam, company,finance_book):
+        return tinh_No_Cua_Yearly_Finance_Book(nam,'121%%',company,finance_book)
+def tinhMa122(nam, company,finance_book):
+        return tinh_Co_Cua_Yearly_If_Nega(nam,'2291%%',company,finance_book)
+def tinhMa123(nam, company,finance_book):
+        return (tinh_No_Cua_Yearly_Finance_Book(nam,'12812%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'12821%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'12882%%',company,finance_book))
+def tinhMa131(nam, company,finance_book):
+        return tinh_No_Yearly_Finance_Book_Party_Pos(nam,'1311%',company,finance_book)
+def tinhMa132(nam, company,finance_book):
+        return tinh_No_Yearly_Finance_Book_Party_Pos(nam,'3311%%',company,finance_book)
+def tinhMa133(nam, company,finance_book):
+        return (tinh_No_Cua_Yearly_Finance_Book(nam,'13621%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'13631%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'13681%%',company,finance_book))
+def tinhMa134(nam, company,finance_book):
+        return tinh_No_Cua_Yearly_If_Pos(nam,'337%%',company,finance_book)
+def tinhMa135(nam, company,finance_book):
+        return tinh_No_Cua_Yearly_Finance_Book(nam,'12831%%',company,finance_book)
+
+def tinhMa136(nam, company,finance_book):
+        return (tinh_No_Cua_Yearly_Finance_Book(nam,'1411%%',company,finance_book)
+                + tinh_No_Cua_Yearly_Finance_Book(nam,'2441%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'13851%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'13881%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'334%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'3381%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'3382%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'3383%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'3384%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33851%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'3386%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33871%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33881%%',company,finance_book)
+                )
+def tinhMa137(nam, company,finance_book):
+        return tinh_Co_Cua_Yearly_If_Nega(nam,'22931%%',company,finance_book)
+def tinhMa139(nam, company,finance_book):
+        return tinh_No_Cua_Yearly_If_Pos(nam,'1381%%',company,finance_book)
+def tinhMa141(nam, company,finance_book):
+        return (tinh_No_Cua_Yearly_Finance_Book(nam,'151%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'152%%',company,finance_book)
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'155%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'156%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'157%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'158%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'1531%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'1532%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'1533%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'15341%%',company,finance_book)
+                                + tinh_No_Cua_Yearly_Finance_Book(nam,'1541%%',company,finance_book) 
+                                )
+def tinhMa149(nam, company,finance_book):
+        return tinh_No_Cua_Yearly_If_Nega(nam,'22941%%',company,finance_book)
+def tinhMa151(nam, company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'2421%%',company,finance_book)
+def tinhMa152(nam, company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'133%%',company,finance_book) 
+def tinhMa153(nam, company,finance_book):
+    return tinh_No_Cua_Yearly_If_Pos_ma153(nam,'333%%',company,finance_book)  
+def tinhMa154(nam, company,finance_book):
+    return tinh_No_Cua_Yearly_If_Pos(nam,'171%%',company,finance_book)
+def tinhMa155(nam, company,finance_book):  
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'22881%%',company,finance_book)
+def tinhMa211 (nam,company,finance_book):
+        return tinh_No_Yearly_Finance_Book_Party_Pos(nam,'1312%%',company,finance_book)
+def tinhMa212 (nam,company,finance_book):
+    return tinh_No_Yearly_Finance_Book_Party_Pos(nam,'3312%%',company,finance_book)
+def tinhMa213 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'1361%%',company,finance_book)
+def tinhMa214 (nam,company,finance_book):
+    return (tinh_No_Cua_Yearly_Finance_Book(nam,'13622%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book(nam,'13632%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book(nam,'13682%%',company,finance_book))
+def tinhMa215 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'12832%%',company,finance_book)
+def tinhMa216 (nam,company,finance_book):
+    return (tinh_No_Cua_Yearly_If_Pos_ma313(nam,'13852%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'13882%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'1412%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'2442%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33852%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33872%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33882%%',company,finance_book))
+def tinhMa219 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_If_Nega(nam,'22932%%',company,finance_book) 
+def tinhMa222 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'211%%',company,finance_book)
+def tinhMa223 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_If_Nega(nam,'2141%%',company,finance_book)
+def tinhMa225 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'212%%',company,finance_book)
+def tinhMa226 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_If_Nega(nam,'2142%%',company,finance_book)
+def tinhMa228 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'213%%',company,finance_book)
+def tinhMa229 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_If_Nega(nam,'2143%%',company,finance_book)
+def tinhMa231 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'217%%',company,finance_book)
+def tinhMa232 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_If_Nega(nam,'2147%%',company,finance_book)
+def tinhMa241 (nam,company,finance_book):
+    return (tinh_No_Cua_Yearly_Finance_Book(nam,'1542%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book(nam,'22942%%',company,finance_book))
+def tinhMa242 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'241%%',company,finance_book)
+def tinhMa251 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'221%%',company,finance_book)
+def tinhMa252 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'222%%',company,finance_book)
+def tinhMa253 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'2281%%',company,finance_book)
+def tinhMa254 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_If_Nega(nam,'2292%%',company,finance_book)
+def tinhMa255 (nam,company,finance_book):
+    return (tinh_No_Cua_Yearly_Finance_Book(nam,'12813%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book(nam,'12822%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book(nam,'12883%%',company,finance_book))
+def tinhMa261 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'2422%%',company,finance_book)
+def tinhMa262 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'243%%',company,finance_book)
+def tinhMa263 (nam,company,finance_book):
+    return (tinh_No_Cua_Yearly_Finance_Book(nam,'22943%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book(nam,'15342%%',company,finance_book))
+def tinhMa268 (nam,company,finance_book):
+    return tinh_No_Cua_Yearly_Finance_Book(nam,'22882%%',company,finance_book)
+def tinhMa311 (nam,company,finance_book):
+    return tinh_Co_Yearly_Finance_Book_Party_Pos(nam,'3311%%',company,finance_book)
+def tinhMa312 (nam,company,finance_book):
+    return tinh_Co_Yearly_Finance_Book_Party_Pos(nam,'1311%%',company,finance_book)
+def tinhMa313 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'333%%',company,finance_book)
+def tinhMa314 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_If_Pos(nam,'334%%',company,finance_book)
+def tinhMa315 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'3351%%',company,finance_book)
+def tinhMa316 (nam,company,finance_book):
+    return (tinh_Co_Cua_Yearly_Finance_Book(nam,'33621%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book(nam,'33631%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book(nam,'33681%%',company,finance_book))
+def tinhMa317 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_If_Pos(nam,'337%%',company,finance_book)
+def tinhMa318 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_If_Pos(nam,'33871%%',company,finance_book)
+def tinhMa319 (nam,company,finance_book):
+    return (tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'3381%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'3382%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'3383%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'3384%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'33851%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'3386%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'33881%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'1381%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'13851%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'13881%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book(nam,'3441%%',company,finance_book))
+def tinhMa320 (nam,company,finance_book):
+    return (tinh_Co_Cua_Yearly_Finance_Book(nam,'34111%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book(nam,'34121%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book(nam,'343111%%',company,finance_book))
+def tinhMa321 (nam,company,finance_book):
+    return (tinh_Co_Cua_Yearly_Finance_Book(nam,'35211%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book(nam,'35221%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book(nam,'35231%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book(nam,'35241%%',company,finance_book))
+def tinhMa322 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'353%%',company,finance_book)
+def tinhMa323 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'357%%',company,finance_book)
+def tinhMa324 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_If_Pos(nam,'171%%',company,finance_book)
+def tinhMa331 (nam,company,finance_book):
+    return tinh_Co_Yearly_Finance_Book_Party_Pos(nam,'3312%%',company,finance_book)
+def tinhMa332 (nam,company,finance_book):
+    return tinh_Co_Yearly_Finance_Book_Party_Pos(nam,'1312%%',company,finance_book)
+def tinhMa333 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'3352%%',company,finance_book)
+def tinhMa334 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'3361%%',company,finance_book)
+def tinhMa335 (nam,company,finance_book):
+    return (tinh_Co_Cua_Yearly_Finance_Book(nam,'33622%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book(nam,'33632%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book(nam,'33682%%',company,finance_book))
+def tinhMa336 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_If_Pos(nam,'33872%%',company,finance_book)
+def tinhMa337 (nam,company,finance_book):
+    return (tinh_Co_Cua_Yearly_Finance_Book(nam,'3442%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'33852%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'33882%%',company,finance_book))
+def tinhMa338 (nam,company,finance_book):
+    return (tinh_Co_Cua_Yearly_Finance_Book(nam,'34112%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book(nam,'34122%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book(nam,'343112%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book(nam,'34312%%',company,finance_book)  
+    + tinh_Co_Cua_Yearly_Finance_Book(nam,'34313%%',company,finance_book))
+def tinhMa339 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'3432%%',company,finance_book)
+def tinhMa340 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'411122%%',company,finance_book)
+def tinhMa341 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'347%%',company,finance_book)
+def tinhMa342 (nam,company,finance_book):
+    return (tinh_Co_Cua_Yearly_Finance_Book(nam,'35212%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book(nam,'35222%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book(nam,'35232%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book(nam,'35242%%',company,finance_book))  
+def tinhMa343 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'356%%',company,finance_book)
+def tinhMa411a (nam,company,finance_book):
+    return tinh_Co_Yearly_Finance_Book_Party_Pos(nam,'41111%%',company,finance_book)
+def tinhMa411b (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'411121%%',company,finance_book)
+def tinhMa412 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'4112%%',company,finance_book)
+def tinhMa413 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'4113%%',company,finance_book)
+def tinhMa414 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'4118%%',company,finance_book)
+def tinhMa415 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'419%%',company,finance_book)
+def tinhMa416 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'412%%',company,finance_book)
+def tinhMa417 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'413%%',company,finance_book)
+def tinhMa418 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'414%%',company,finance_book)
+def tinhMa419 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'417%%',company,finance_book)
+def tinhMa420 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'418%%',company,finance_book)
+def tinhMa421a (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'4211%%',company,finance_book)
+def tinhMa421b (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'4212%%',company,finance_book)
+def tinhMa422 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'441%%',company,finance_book)
+def tinhMa431 (nam,company,finance_book):
+    return (tinh_Co_Cua_Yearly_Finance_Book(nam,'461%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book(nam,'161%%',company,finance_book))
+def tinhMa432 (nam,company,finance_book):
+    return tinh_Co_Cua_Yearly_Finance_Book(nam,'466%%',company,finance_book)
 def get_giatri(nam,maso,periodicity,company,finance_book):
     if periodicity== "Yearly":
-
         nam = nam.label
-
-
-
-        KQma111=  ((tinh_No_Cua_Yearly_Finance_Book(nam,'111%%',company,finance_book)) 
-                    + (tinh_No_Cua_Yearly_Finance_Book(nam,'112%%',company,finance_book)) 
-                    + (tinh_No_Cua_Yearly_Finance_Book(nam,'113%%',company,finance_book)))
-        KQma112=  (tinh_No_Cua_Yearly_Finance_Book(nam,'12811%%',company,finance_book) 
-                    + tinh_No_Cua_Yearly_Finance_Book(nam,'12881%%',company,finance_book))
-        KQma110 = KQma111 + KQma112
-
-        KQma121=  tinh_No_Cua_Yearly_Finance_Book(nam,'121%%',company,finance_book)
-        KQma122=  tinh_Co_Cua_Yearly_If_Nega(nam,'2291%%',company,finance_book)
-        KQma123=  (tinh_No_Cua_Yearly_Finance_Book(nam,'12812%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'12821%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'12882%%',company,finance_book))
-        KQma120 = KQma121 + KQma122 + KQma123
-
-        KQma131=   tinh_No_Yearly_Finance_Book_Party_Pos(nam,'1311%',company,finance_book)
-        KQma132=   tinh_No_Yearly_Finance_Book_Party_Pos(nam,'3311%%',company,finance_book)
-        KQma133=   (tinh_No_Cua_Yearly_Finance_Book(nam,'13621%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'13631%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'13681%%',company,finance_book))
-        KQma134=   tinh_No_Cua_Yearly_If_Pos(nam,'337%%',company,finance_book)
-        KQma135=   tinh_No_Cua_Yearly_Finance_Book(nam,'12831%%',company,finance_book)
-        KQma136=   (tinh_No_Cua_Yearly_Finance_Book(nam,'1411%%',company,finance_book)
-            + tinh_No_Cua_Yearly_Finance_Book(nam,'2441%%',company,finance_book)
-            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'13851%%',company,finance_book)
-            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'13881%%',company,finance_book)
-            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'334%%',company,finance_book)
-            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'3381%%',company,finance_book)
-            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'3382%%',company,finance_book)
-            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'3383%%',company,finance_book)
-            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'3384%%',company,finance_book)
-            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33851%%',company,finance_book)
-            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'3386%%',company,finance_book)
-            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33871%%',company,finance_book)
-            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33881%%',company,finance_book)
-            )
-        KQma137=   tinh_Co_Cua_Yearly_If_Nega(nam,'22931%%',company,finance_book)
-        KQma139=   tinh_No_Cua_Yearly_If_Pos(nam,'1381%%',company,finance_book)
-        KQma130 =  KQma131 + KQma132 + KQma133 + KQma134 + KQma135 + KQma136 + KQma137 + KQma139
-
-
-        KQma141=  (tinh_No_Cua_Yearly_Finance_Book(nam,'151%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'152%%',company,finance_book)
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'155%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'156%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'157%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'158%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'1531%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'1532%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'1533%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'15341%%',company,finance_book)
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'1541%%',company,finance_book) 
-                            )
-        KQma149=   tinh_No_Cua_Yearly_If_Nega(nam,'22941%%',company,finance_book)
-        KQma140 = KQma141 + KQma149
-
-
-        KQma151 = tinh_No_Cua_Yearly_Finance_Book(nam,'2421%%',company,finance_book)
-        KQma152 = tinh_No_Cua_Yearly_Finance_Book(nam,'133%%',company,finance_book)
-        KQma153 = tinh_No_Cua_Yearly_If_Pos_ma153(nam,'333%%',company,finance_book)
-        KQma154 = tinh_No_Cua_Yearly_If_Pos(nam,'171%%',company,finance_book)
-        KQma155 = tinh_No_Cua_Yearly_Finance_Book(nam,'22881%%',company,finance_book)
-        KQma150 = KQma151 + KQma152 + KQma153 + KQma154 + KQma155
-
-        KQma100= KQma110+KQma120+KQma130+KQma140+KQma150
-
-        KQma211 = tinh_No_Yearly_Finance_Book_Party_Pos(nam,'1312%%',company,finance_book)
-        KQma212 = tinh_No_Yearly_Finance_Book_Party_Pos(nam,'3312%%',company,finance_book)
-        KQma213 = tinh_No_Cua_Yearly_Finance_Book(nam,'1361%%',company,finance_book)
-        KQma214 = (tinh_No_Cua_Yearly_Finance_Book(nam,'13622%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'13632%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'13682%%',company,finance_book))
-        KQma215 = tinh_No_Cua_Yearly_Finance_Book(nam,'12832%%',company,finance_book)
-        KQma216 = (tinh_No_Cua_Yearly_If_Pos_ma313(nam,'13852%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'13882%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'1412%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'2442%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33852%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33872%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_If_Pos_ma313(nam,'33882%%',company,finance_book))
-        KQma219 = tinh_No_Cua_Yearly_If_Nega(nam,'22932%%',company,finance_book)
-
-        KQma210 =  KQma211 + KQma212 + KQma213 + KQma214 + KQma215 + KQma216 + KQma219
-
-        KQma222 = tinh_No_Cua_Yearly_Finance_Book(nam,'211%%',company,finance_book)
-        KQma223 = tinh_Co_Cua_Yearly_If_Nega(nam,'2141%%',company,finance_book)
-        KQma221 =  KQma222 + KQma223
-
-
-        KQma225 = tinh_No_Cua_Yearly_Finance_Book(nam,'212%%',company,finance_book)
-        KQma226 = tinh_Co_Cua_Yearly_If_Nega(nam,'2142%%',company,finance_book)
-        KQma224 =  KQma225 + KQma226
-
-
-        KQma228 = tinh_No_Cua_Yearly_Finance_Book(nam,'213%%',company,finance_book)
-        KQma229 = tinh_Co_Cua_Yearly_If_Nega(nam,'2143%%',company,finance_book)
-        KQma227 =  KQma228 + KQma229
-
-        KQma220 =  KQma221 + KQma224 + KQma227
-
-        KQma231 = tinh_No_Cua_Yearly_Finance_Book(nam,'217%%',company,finance_book)
-        KQma232 = tinh_Co_Cua_Yearly_If_Nega(nam,'2147%%',company,finance_book)
-        KQma230 =  KQma231 + KQma232
-
-
-        KQma241 = (tinh_No_Cua_Yearly_Finance_Book(nam,'1542%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_Finance_Book(nam,'22942%%',company,finance_book))
-        KQma242 = tinh_No_Cua_Yearly_Finance_Book(nam,'241%%',company,finance_book)
-        KQma240 =  KQma241 + KQma242
-
-
-        KQma251 = tinh_No_Cua_Yearly_Finance_Book(nam,'221%%',company,finance_book)
-        KQma252 = tinh_No_Cua_Yearly_Finance_Book(nam,'222%%',company,finance_book)
-        KQma253 = tinh_No_Cua_Yearly_Finance_Book(nam,'2281%%',company,finance_book)
-        KQma254 = tinh_Co_Cua_Yearly_If_Nega(nam,'2292%%',company,finance_book)
-        KQma255 = (tinh_No_Cua_Yearly_Finance_Book(nam,'12813%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'12822%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'12883%%',company,finance_book))
-        KQma250 =  KQma251 + KQma252 + KQma253 + KQma254 + KQma255
-
-        KQma261 = tinh_No_Cua_Yearly_Finance_Book(nam,'2422%%',company,finance_book)
-        KQma262 = tinh_No_Cua_Yearly_Finance_Book(nam,'243%%',company,finance_book)
-        KQma263 = (tinh_No_Cua_Yearly_Finance_Book(nam,'22943%%',company,finance_book) 
-                            + tinh_No_Cua_Yearly_Finance_Book(nam,'15342%%',company,finance_book))
-        KQma268 = tinh_No_Cua_Yearly_Finance_Book(nam,'22882%%',company,finance_book)
-        KQma260 =  KQma261 + KQma262 + KQma263 + KQma268
-
-        KQma200 = KQma210 + KQma220 + KQma230 + KQma240 + KQma250 + KQma260
-
-        KQma270 =  KQma100 + KQma200
-
-
-
-        KQma311 = tinh_Co_Yearly_Finance_Book_Party_Pos(nam,'3311%%',company,finance_book)
-        KQma312 = tinh_Co_Yearly_Finance_Book_Party_Pos(nam,'1311%%',company,finance_book)
-        KQma313 = tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'333%%',company,finance_book)
-        KQma314 = tinh_Co_Cua_Yearly_If_Pos(nam,'334%%',company,finance_book)
-        KQma315 = tinh_Co_Cua_Yearly_Finance_Book(nam,'3351%%',company,finance_book)
-        KQma316 = (tinh_Co_Cua_Yearly_Finance_Book(nam,'33621%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_Finance_Book(nam,'33631%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_Finance_Book(nam,'33681%%',company,finance_book))
-        KQma317 = tinh_Co_Cua_Yearly_If_Pos(nam,'337%%',company,finance_book)
-        KQma318 = tinh_Co_Cua_Yearly_If_Pos(nam,'33871%%',company,finance_book)
-        KQma319 = (tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'3381%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'3382%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'3383%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'3384%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'33851%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'3386%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'33881%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'1381%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'13851%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'13881%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_Finance_Book(nam,'3441%%',company,finance_book))
-        KQma320 = (tinh_Co_Cua_Yearly_Finance_Book(nam,'34111%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_Finance_Book(nam,'34121%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_Finance_Book(nam,'343111%%',company,finance_book))
-        KQma321 = (tinh_Co_Cua_Yearly_Finance_Book(nam,'35211%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_Finance_Book(nam,'35221%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_Finance_Book(nam,'35231%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_Finance_Book(nam,'35241%%',company,finance_book))
-        KQma322 = tinh_Co_Cua_Yearly_Finance_Book(nam,'353%%',company,finance_book)
-        KQma323 = tinh_Co_Cua_Yearly_Finance_Book(nam,'357%%',company,finance_book)
-        KQma324 = tinh_Co_Cua_Yearly_If_Pos(nam,'171%%',company,finance_book)
-        KQma310 =  KQma311 + KQma312 + KQma313 + KQma314 + KQma315 + KQma316 + KQma317 + KQma318 + KQma319 + KQma320 + KQma321 + KQma322 + KQma323 + KQma324
-
-        KQma331 = tinh_Co_Yearly_Finance_Book_Party_Pos(nam,'3312%%',company,finance_book)
-        KQma332 = tinh_Co_Yearly_Finance_Book_Party_Pos(nam,'1312%%',company,finance_book)
-        KQma333 = tinh_Co_Cua_Yearly_Finance_Book(nam,'3352%%',company,finance_book)
-        KQma334 = tinh_Co_Cua_Yearly_Finance_Book(nam,'3361%%',company,finance_book)
-        KQma335 = (tinh_Co_Cua_Yearly_Finance_Book(nam,'33622%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_Finance_Book(nam,'33632%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_Finance_Book(nam,'33682%%',company,finance_book))
-        KQma336 = tinh_Co_Cua_Yearly_If_Pos(nam,'33872%%',company,finance_book)
-        KQma337 = (tinh_Co_Cua_Yearly_Finance_Book(nam,'3442%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'33852%%',company,finance_book) 
-                            + tinh_Co_Cua_Yearly_If_Pos_ma313(nam,'33882%%',company,finance_book))
-        KQma338 = (tinh_Co_Cua_Yearly_Finance_Book(nam,'34112%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_Finance_Book(nam,'34122%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_Finance_Book(nam,'343112%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_Finance_Book(nam,'34312%%',company,finance_book)  
-            + tinh_Co_Cua_Yearly_Finance_Book(nam,'34313%%',company,finance_book))
-        KQma339 = tinh_Co_Cua_Yearly_Finance_Book(nam,'3432%%',company,finance_book)
-        KQma340 = tinh_Co_Cua_Yearly_Finance_Book(nam,'411122%%',company,finance_book)
-        KQma341 = tinh_Co_Cua_Yearly_Finance_Book(nam,'347%%',company,finance_book)
-        KQma342 = (tinh_Co_Cua_Yearly_Finance_Book(nam,'35212%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_Finance_Book(nam,'35222%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_Finance_Book(nam,'35232%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_Finance_Book(nam,'35242%%',company,finance_book))	
-        KQma343 = tinh_Co_Cua_Yearly_Finance_Book(nam,'356%%',company,finance_book)
-        KQma330 =  KQma331 + KQma332 + KQma333 + KQma334 + KQma335 + KQma336 + KQma337 + KQma338 + KQma339 + KQma340 + KQma341 + KQma342 + KQma343
-
-
-
-        KQma411a = tinh_Co_Yearly_Finance_Book_Party_Pos(nam,'41111%%',company,finance_book)
-        KQma411b =tinh_Co_Cua_Yearly_Finance_Book(nam,'411121%%',company,finance_book)
-        KQma411 = KQma411a + KQma411b
-
-        KQma412 = tinh_Co_Cua_Yearly_Finance_Book(nam,'4112%%',company,finance_book)
-        KQma413 = tinh_Co_Cua_Yearly_Finance_Book(nam,'4113%%',company,finance_book)
-        KQma414 = tinh_Co_Cua_Yearly_Finance_Book(nam,'4118%%',company,finance_book)
-        KQma415 = tinh_Co_Cua_Yearly_Finance_Book(nam,'419%%',company,finance_book)
-        KQma416 = tinh_Co_Cua_Yearly_Finance_Book(nam,'412%%',company,finance_book)
-        KQma417 = tinh_Co_Cua_Yearly_Finance_Book(nam,'413%%',company,finance_book)
-        KQma418 = tinh_Co_Cua_Yearly_Finance_Book(nam,'414%%',company,finance_book)
-        KQma419 = tinh_Co_Cua_Yearly_Finance_Book(nam,'417%%',company,finance_book)
-        KQma420 = tinh_Co_Cua_Yearly_Finance_Book(nam,'418%%',company,finance_book)
-
-        KQma421a = tinh_Co_Cua_Yearly_Finance_Book(nam,'4211%%',company,finance_book)
-        KQma421b = tinh_Co_Cua_Yearly_Finance_Book(nam,'4212%%',company,finance_book)
-        KQma421 =  KQma421a + KQma421b
-
-        KQma422 =tinh_Co_Cua_Yearly_Finance_Book(nam,'441%%',company,finance_book)
-        KQma410 =  KQma411 + KQma412 + KQma413 + KQma414 + KQma415 + KQma416 + KQma417 + KQma418 + KQma419 + KQma420 + KQma421 + KQma422
-
-
-        KQma431 = (tinh_Co_Cua_Yearly_Finance_Book(nam,'461%%',company,finance_book) 
-            + tinh_Co_Cua_Yearly_Finance_Book(nam,'161%%',company,finance_book))
-        KQma432 = tinh_Co_Cua_Yearly_Finance_Book(nam,'466%%',company,finance_book)
-        KQma430 =  KQma431 + KQma432
-
-        KQma300 =  KQma310 + KQma330
-        KQma400 =  KQma410 + KQma430
-        KQma440 =  KQma300 + KQma400
-
         if maso == '100':
-            return KQma100
-        
-        elif maso == '110':
-            return KQma110
+            return (tinhMa111(nam,company,finance_book)+tinhMa112(nam,company,finance_book)+
+            tinhMa122(nam,company,finance_book)+tinhMa121(nam,company,finance_book)
+                                                +tinhMa123(nam,company,finance_book)+
+            tinhMa131(nam,company,finance_book)+tinhMa132(nam,company,finance_book)
+                +tinhMa133(nam,company,finance_book)+tinhMa134(nam,company,finance_book)
+                +tinhMa135(nam,company,finance_book)+tinhMa136(nam,company,finance_book)
+                +tinhMa137(nam,company,finance_book)+tinhMa139(nam,company,finance_book)+
+            tinhMa141(nam,company,finance_book)+tinhMa419(nam,company,finance_book)+
+            tinhMa151(nam,company,finance_book)+tinhMa152(nam,company,finance_book)
+                +tinhMa153(nam,company,finance_book)+tinhMa154(nam,company,finance_book)
+                +tinhMa155(nam,company,finance_book))
 
+        elif maso == '110':
+            return tinhMa111(nam,company,finance_book)+tinhMa112(nam,company,finance_book)
         elif maso == '111':
-            return KQma111
+            return tinhMa111(nam,company,finance_book)
         elif maso == '112':
-            return KQma112
+            return tinhMa112(nam,company,finance_book)
         elif maso == '120':
-            return KQma120
+            return (tinhMa122(nam,company,finance_book)+tinhMa121(nam,company,finance_book)
+                    +tinhMa123(nam,company,finance_book))
         elif maso == '121':
-            return KQma121
-        elif maso == '122':	
-            return KQma122
+            return tinhMa121(nam,company,finance_book)
+        elif maso == '122': 
+            return tinhMa122(nam,company,finance_book)
         elif maso == '123':
-            return KQma123
+            return tinhMa123(nam,company,finance_book)
 
         elif maso == '130':
-            return KQma130
+            return (tinhMa131(nam,company,finance_book)+tinhMa132(nam,company,finance_book)
+            +tinhMa133(nam,company,finance_book)+tinhMa134(nam,company,finance_book)
+            +tinhMa135(nam,company,finance_book)+tinhMa136(nam,company,finance_book)
+            +tinhMa137(nam,company,finance_book)+tinhMa139(nam,company,finance_book))
         elif maso == '131':
-            return KQma131
+            return tinhMa131(nam,company,finance_book)
         elif maso == '132':
-            return KQma132
+            return tinhMa132(nam,company,finance_book)
         elif maso == '133':
-            return  KQma133
+            return  tinhMa133(nam,company,finance_book)
         elif maso == '134':
-            return KQma134
+            return tinhMa134(nam,company,finance_book)
         elif maso == '135':
-            return KQma135
+            return tinhMa135(nam,company,finance_book)
         elif maso == '136':
-            return KQma136
+            return tinhMa136(nam,company,finance_book)
         elif maso == '137':
-            return KQma137
+            return tinhMa137(nam,company,finance_book)
         elif maso == '139':
-            return KQma139
+            return tinhMa139(nam,company,finance_book)
         elif maso == '140':
-            return KQma140
+            return tinhMa141(nam,company,finance_book)+tinhMa419(nam,company,finance_book)
         elif maso == '141':
-            return KQma141   
+            return tinhMa141(nam,company,finance_book)   
         elif maso == '149':
-            return KQma149
+            return tinhMa149(nam,company,finance_book)
         elif maso == '150':
-            return KQma150
+            return (tinhMa151(nam,company,finance_book)+tinhMa152(nam,company,finance_book)
+            +tinhMa153(nam,company,finance_book)+tinhMa154(nam,company,finance_book)
+            +tinhMa155(nam,company,finance_book))
         elif maso == '151':
-            return KQma151
+            return tinhMa151(nam,company,finance_book)
         elif maso == '152':
-            return KQma152 
+            return tinhMa152(nam,company,finance_book) 
         elif maso == '153':
-            return KQma153
+            return tinhMa153(nam,company,finance_book)
         elif maso == '154':
-            return KQma154
+            return tinhMa154(nam,company,finance_book)
         elif maso == '155':
-            return KQma155
+            return tinhMa155(nam,company,finance_book)
         elif maso == '200':
-            return KQma200
+            return (tinhMa211(nam,company,finance_book)+tinhMa212(nam,company,finance_book)
+                +tinhMa213(nam,company,finance_book)+tinhMa214(nam,company,finance_book)
+                +tinhMa215(nam,company,finance_book)+tinhMa216(nam,company,finance_book)
+                +tinhMa219(nam,company,finance_book)+
+                    tinhMa222(nam,company,finance_book)+tinhMa223(nam,company,finance_book)
+                +tinhMa225(nam,company,finance_book)+tinhMa226(nam,company,finance_book)
+                +tinhMa229(nam,company,finance_book)+tinhMa228(nam,company,finance_book)+
+                    tinhMa231(nam,company,finance_book)+tinhMa232(nam,company,finance_book)+
+                    tinhMa241(nam,company,finance_book)+tinhMa242(nam,company,finance_book)+
+                    tinhMa251(nam,company,finance_book)+tinhMa252(nam,company,finance_book)
+                +tinhMa253(nam,company,finance_book)+tinhMa254(nam,company,finance_book)
+                +tinhMa255(nam,company,finance_book)+
+                    tinhMa261(nam,company,finance_book)+tinhMa262(nam,company,finance_book)
+                +tinhMa263(nam,company,finance_book)+tinhMa268(nam,company,finance_book))
         elif maso == '210':
-            return KQma210
+            return (tinhMa211(nam,company,finance_book)+tinhMa212(nam,company,finance_book)
+            +tinhMa213(nam,company,finance_book)+tinhMa214(nam,company,finance_book)
+            +tinhMa215(nam,company,finance_book)+tinhMa216(nam,company,finance_book)
+            +tinhMa219(nam,company,finance_book))
         elif maso == '211':
-            return KQma211
+            return tinhMa211(nam,company,finance_book)
         elif maso == '212':
-            return KQma212
+            return tinhMa212(nam,company,finance_book)
         elif maso == '213':
-            return KQma213
+            return tinhMa213(nam,company,finance_book)
         elif maso == '214':
-            return KQma214
+            return tinhMa214(nam,company,finance_book)
         elif maso == '215':
-            return KQma215
+            return tinhMa215(nam,company,finance_book)
         elif maso == '216':
-            return KQma216
+            return tinhMa216(nam,company,finance_book)
         elif maso == '219':
-            return KQma219
+            return tinhMa219(nam,company,finance_book)
         elif maso == '220':
-            return KQma220
+            return (tinhMa222(nam,company,finance_book)+tinhMa223(nam,company,finance_book)
+            +tinhMa225(nam,company,finance_book)+tinhMa226(nam,company,finance_book)
+            +tinhMa229(nam,company,finance_book)+tinhMa228(nam,company,finance_book))
+
         elif maso == '221':
-            return KQma221
+            return tinhMa222(nam,company,finance_book)+tinhMa223(nam,company,finance_book)
         elif maso == '222':
-            return KQma222
+            return tinhMa222(nam,company,finance_book)
         elif maso == '223':
-            return KQma223
+            return tinhMa223(nam,company,finance_book)
         elif maso == '224':
-            return KQma224
+            return tinhMa225(nam,company,finance_book)+tinhMa226(nam,company,finance_book)
         elif maso == '225':
-            return KQma225
+            return tinhMa225(nam,company,finance_book)
         elif maso == '226':
-            return KQma226
+            return tinhMa226(nam,company,finance_book)
 
         elif maso == '227':
-            return KQma227
+            return tinhMa229(nam,company,finance_book)+tinhMa228(nam,company,finance_book)
         elif maso == '228':
-            return KQma228
+            return tinhMa228(nam,company,finance_book)
         elif maso == '229':
-            return KQma229
+            return tinhMa229(nam,company,finance_book)
         elif maso == '230':
-            return KQma230
+            return tinhMa231(nam,company,finance_book)+tinhMa232(nam,company,finance_book)
         elif maso == '231':
-            return KQma231
+            return tinhMa231(nam,company,finance_book)
         elif maso == '232':
-            return KQma232
+            return tinhMa232(nam,company,finance_book)
         elif maso == '240':
-            return KQma240
+            return tinhMa241(nam,company,finance_book)+tinhMa242(nam,company,finance_book)
         elif maso == '241':
-            return KQma241 
+            return tinhMa241(nam,company,finance_book) 
         elif maso == '242':
-            return KQma242
+            return tinhMa242(nam,company,finance_book)
         elif maso == '250':
-            return KQma250
+            return (
+                tinhMa251(nam,company,finance_book)+tinhMa252(nam,company,finance_book)
+                +tinhMa253(nam,company,finance_book)+tinhMa254(nam,company,finance_book)
+                +tinhMa255(nam,company,finance_book))
 
         elif maso == '251':
-            return KQma251
+            return tinhMa251(nam,company,finance_book)
         elif maso == '252':
-            return KQma252
+            return tinhMa252(nam,company,finance_book)
         elif maso == '253':
-            return KQma253
+            return tinhMa253(nam,company,finance_book)
         elif maso == '254':
-            return KQma254
+            return tinhMa254(nam,company,finance_book)
         elif maso == '255':
-            return KQma255
+            return tinhMa255(nam,company,finance_book)
         elif maso == '260':
-            return KQma260
+            return (tinhMa261(nam,company,finance_book)+tinhMa262(nam,company,finance_book)
+            +tinhMa263(nam,company,finance_book)+tinhMa268(nam,company,finance_book))
         elif maso == '261':
-            return KQma261
+            return tinhMa261(nam,company,finance_book)
         elif maso == '262':
-            return KQma262
+            return tinhMa262(nam,company,finance_book)
         elif maso == '263':
-            return KQma263
+            return tinhMa263(nam,company,finance_book)
         elif maso == '268':
-            return KQma268
+            return tinhMa268(nam,company,finance_book)
         elif maso == '270':
-            return KQma270
+            return (tinhMa111(nam,company,finance_book)+tinhMa112(nam,company,finance_book)+
+            tinhMa122(nam,company,finance_book)+tinhMa121(nam,company,finance_book)
+                                                +tinhMa123(nam,company,finance_book)+
+            tinhMa131(nam,company,finance_book)+tinhMa132(nam,company,finance_book)
+                +tinhMa133(nam,company,finance_book)+tinhMa134(nam,company,finance_book)
+                +tinhMa135(nam,company,finance_book)+tinhMa136(nam,company,finance_book)
+                +tinhMa137(nam,company,finance_book)+tinhMa139(nam,company,finance_book)+
+            tinhMa141(nam,company,finance_book)+tinhMa149(nam,company,finance_book)+
+            tinhMa151(nam,company,finance_book)+tinhMa152(nam,company,finance_book)
+                +tinhMa153(nam,company,finance_book)+tinhMa154(nam,company,finance_book)
+                +tinhMa155(nam,company,finance_book)+
+                    tinhMa211(nam,company,finance_book)+tinhMa212(nam,company,finance_book)
+                +tinhMa213(nam,company,finance_book)+tinhMa214(nam,company,finance_book)
+                +tinhMa215(nam,company,finance_book)+tinhMa216(nam,company,finance_book)
+                +tinhMa219(nam,company,finance_book)+
+                    tinhMa222(nam,company,finance_book)+tinhMa223(nam,company,finance_book)
+                +tinhMa225(nam,company,finance_book)+tinhMa226(nam,company,finance_book)
+                +tinhMa229(nam,company,finance_book)+tinhMa228(nam,company,finance_book)+
+                    tinhMa231(nam,company,finance_book)+tinhMa232(nam,company,finance_book)+
+                    tinhMa241(nam,company,finance_book)+tinhMa242(nam,company,finance_book)+
+                    tinhMa251(nam,company,finance_book)+tinhMa252(nam,company,finance_book)
+                +tinhMa253(nam,company,finance_book)+tinhMa254(nam,company,finance_book)
+                +tinhMa255(nam,company,finance_book)+
+                    tinhMa261(nam,company,finance_book)+tinhMa262(nam,company,finance_book)
+                +tinhMa263(nam,company,finance_book)+tinhMa268(nam,company,finance_book))
             
         elif maso == '300':
-            return KQma300
+            return (tinhMa311(nam,company,finance_book)+tinhMa312(nam,company,finance_book)
+            +tinhMa313(nam,company,finance_book)+tinhMa314(nam,company,finance_book)
+            +tinhMa315(nam,company,finance_book)+tinhMa316(nam,company,finance_book)
+            +tinhMa317(nam,company,finance_book)+tinhMa318(nam,company,finance_book)
+            +tinhMa319(nam,company,finance_book)+tinhMa320(nam,company,finance_book)
+            +tinhMa321(nam,company,finance_book)+tinhMa322(nam,company,finance_book)
+            +tinhMa323(nam,company,finance_book)+tinhMa324(nam,company,finance_book)+
+                tinhMa331(nam,company,finance_book)+tinhMa332(nam,company,finance_book)
+            +tinhMa333(nam,company,finance_book)+tinhMa334(nam,company,finance_book)
+            +tinhMa335(nam,company,finance_book)+tinhMa336(nam,company,finance_book)
+            +tinhMa337(nam,company,finance_book)+tinhMa338(nam,company,finance_book)
+            +tinhMa339(nam,company,finance_book)+tinhMa340(nam,company,finance_book)
+            +tinhMa341(nam,company,finance_book)+tinhMa342(nam,company,finance_book)
+            +tinhMa343(nam,company,finance_book))
         elif maso == '310':
-            return KQma310
-       
+            return (tinhMa311(nam,company,finance_book)+tinhMa312(nam,company,finance_book)
+            +tinhMa313(nam,company,finance_book)+tinhMa314(nam,company,finance_book)
+            +tinhMa315(nam,company,finance_book)+tinhMa316(nam,company,finance_book)
+            +tinhMa317(nam,company,finance_book)+tinhMa318(nam,company,finance_book)
+            +tinhMa319(nam,company,finance_book)+tinhMa320(nam,company,finance_book)
+            +tinhMa321(nam,company,finance_book)+tinhMa322(nam,company,finance_book)
+            +tinhMa323(nam,company,finance_book)+tinhMa324(nam,company,finance_book))
+
         elif maso == '311':
-            return KQma311
+            return tinhMa311(nam,company,finance_book)
         elif maso == '312':
-            return KQma312
+            return tinhMa312(nam,company,finance_book)
         elif maso == '313':
-            return KQma313
+            return tinhMa313(nam,company,finance_book)
         elif maso == '314':
-            return KQma314
+            return tinhMa314(nam,company,finance_book)
         elif maso == '315':
-            return KQma315
+            return tinhMa315(nam,company,finance_book)
         elif maso == '316':
-            return KQma316
+            return tinhMa316(nam,company,finance_book)
         elif maso == '317':
-            return KQma317
+            return tinhMa317(nam,company,finance_book)
         elif maso == '318':
-            return KQma318
+            return tinhMa318(nam,company,finance_book)
         elif maso == '319':
-            return KQma319
+            return tinhMa319(nam,company,finance_book)
         elif maso == '320':
-            return KQma320
+            return tinhMa320(nam,company,finance_book)
         elif maso == '321':
-            return KQma321
+            return tinhMa321(nam,company,finance_book)
         elif maso == '322':
-            return KQma322
+            return tinhMa322(nam,company,finance_book)
         elif maso == '323':
-            return KQma323
+            return tinhMa323(nam,company,finance_book)
         elif maso == '324':
-            return KQma324
+            return tinhMa324(nam,company,finance_book)
         elif maso == '330':
-            return KQma330
-       		
+            return (tinhMa331(nam,company,finance_book)+tinhMa332(nam,company,finance_book)
+            +tinhMa333(nam,company,finance_book)+tinhMa334(nam,company,finance_book)
+            +tinhMa335(nam,company,finance_book)+tinhMa336(nam,company,finance_book)
+            +tinhMa337(nam,company,finance_book)+tinhMa338(nam,company,finance_book)
+            +tinhMa339(nam,company,finance_book)+tinhMa340(nam,company,finance_book)
+            +tinhMa341(nam,company,finance_book)+tinhMa342(nam,company,finance_book)
+            +tinhMa343(nam,company,finance_book))
+            
         elif maso == '331':
-            return KQma331
+            return tinhMa331(nam,company,finance_book)
         elif maso == '332':
-            return KQma332
+            return tinhMa332(nam,company,finance_book)
         elif maso == '333':
-            return KQma333
+            return tinhMa333(nam,company,finance_book)
         elif maso == '334':
-            return KQma334
+            return tinhMa334(nam,company,finance_book)
         elif maso == '335':
-            return KQma335
+            return tinhMa335(nam,company,finance_book)
         elif maso == '336':
-            return KQma336
+            return tinhMa336(nam,company,finance_book)
         elif maso == '337':
-            return KQma337
+            return tinhMa337(nam,company,finance_book)
         elif maso == '338':
-            return KQma338
+            return tinhMa338(nam,company,finance_book)
         elif maso == '339':
-            return KQma339
+            return tinhMa339(nam,company,finance_book)
         elif maso == '340':
-            return KQma340
+            return tinhMa340(nam,company,finance_book)
         elif maso == '341':
-            return KQma341
+            return tinhMa341(nam,company,finance_book)
         elif maso == '342':
-            return KQma342
+            return tinhMa342(nam,company,finance_book)
         elif maso == '343':
-            return KQma343
+            return tinhMa343(nam,company,finance_book)
         elif maso == '400':
-            return KQma400
+            return (tinhMa411a(nam,company,finance_book)+tinhMa411b(nam,company,finance_book)
+            +tinhMa412(nam,company,finance_book)+tinhMa413(nam,company,finance_book)
+            +tinhMa414(nam,company,finance_book)+tinhMa415(nam,company,finance_book)
+            +tinhMa416(nam,company,finance_book)+tinhMa417(nam,company,finance_book)
+            +tinhMa418(nam,company,finance_book)+tinhMa419(nam,company,finance_book)
+            +tinhMa420(nam,company,finance_book)+tinhMa421a(nam,company,finance_book)
+            +tinhMa421b(nam,company,finance_book)+tinhMa422(nam,company,finance_book)+
+                tinhMa431(nam,company,finance_book)+tinhMa432(nam,company,finance_book))
+
         elif maso == '410':
-            return KQma410
+            return (tinhMa411a(nam,company,finance_book)+tinhMa411b(nam,company,finance_book)
+            +tinhMa412(nam,company,finance_book)+tinhMa413(nam,company,finance_book)
+            +tinhMa414(nam,company,finance_book)+tinhMa415(nam,company,finance_book)
+            +tinhMa416(nam,company,finance_book)+tinhMa417(nam,company,finance_book)
+            +tinhMa418(nam,company,finance_book)+tinhMa419(nam,company,finance_book)
+            +tinhMa420(nam,company,finance_book)+tinhMa421a(nam,company,finance_book)
+            +tinhMa421b(nam,company,finance_book)+tinhMa422(nam,company,finance_book))
+
         elif maso == '411':
-            return KQma411
+            return tinhMa411a(nam,company,finance_book)+tinhMa411b(nam,company,finance_book)
         elif maso == '411a':
-            return KQma411a
+            return tinhMa411a(nam,company,finance_book)
         elif maso == '411b':
-            return KQma411b
+            return tinhMa411b(nam,company,finance_book)
         elif maso == '412':
-            return KQma412
+            return tinhMa412(nam,company,finance_book)
         elif maso == '413':
-            return KQma413
+            return tinhMa413(nam,company,finance_book)
         elif maso == '414':
-            return KQma414
+            return tinhMa414(nam,company,finance_book)
         elif maso == '415':
-            return KQma415
+            return tinhMa415(nam,company,finance_book)
         elif maso == '416':
-            return KQma416
+            return tinhMa416(nam,company,finance_book)
         elif maso == '417':
-            return KQma417
+            return tinhMa417(nam,company,finance_book)
         elif maso == '418':
-            return KQma418
+            return tinhMa418(nam,company,finance_book)
         elif maso == '419':
-            return KQma419
+            return tinhMa419(nam,company,finance_book)
         elif maso == '420':
-            return KQma420
+            return tinhMa420(nam,company,finance_book)
         elif maso == '421':
-            return KQma421
+            return tinhMa421a(nam,company,finance_book)+tinhMa421b(nam,company,finance_book)
         elif maso == '421a':
-            return KQma421a
+            return tinhMa421a(nam,company,finance_book)
         elif maso == '421b':
-            return KQma421b
+            return tinhMa421b(nam,company,finance_book)
         elif maso == '422':
-            return KQma422
+            return tinhMa422(nam,company,finance_book)
         elif maso == '430':
-            return KQma430
+            return tinhMa431(nam,company,finance_book)+tinhMa432(nam,company,finance_book)
         elif maso == '431':
-            return KQma431
+            return tinhMa431(nam,company,finance_book)
         elif maso == '432':
-            return KQma432
+            return tinhMa432(nam,company,finance_book)
         elif maso == '440':
-            return  KQma440
+            return  (tinhMa311(nam,company,finance_book)+tinhMa312(nam,company,finance_book)
+            +tinhMa313(nam,company,finance_book)+tinhMa314(nam,company,finance_book)
+            +tinhMa315(nam,company,finance_book)+tinhMa316(nam,company,finance_book)
+            +tinhMa317(nam,company,finance_book)+tinhMa318(nam,company,finance_book)
+            +tinhMa319(nam,company,finance_book)+tinhMa320(nam,company,finance_book)
+            +tinhMa321(nam,company,finance_book)+tinhMa322(nam,company,finance_book)
+            +tinhMa323(nam,company,finance_book)+tinhMa324(nam,company,finance_book)+
+                tinhMa331(nam,company,finance_book)+tinhMa332(nam,company,finance_book)
+            +tinhMa333(nam,company,finance_book)+tinhMa334(nam,company,finance_book)
+            +tinhMa335(nam,company,finance_book)+tinhMa336(nam,company,finance_book)
+            +tinhMa337(nam,company,finance_book)+tinhMa338(nam,company,finance_book)
+            +tinhMa339(nam,company,finance_book)+tinhMa340(nam,company,finance_book)
+            +tinhMa341(nam,company,finance_book)+tinhMa342(nam,company,finance_book)
+            +tinhMa343(nam,company,finance_book)+
+                    tinhMa411a(nam,company,finance_book)+tinhMa411b(nam,company,finance_book)
+            +tinhMa412(nam,company,finance_book)+tinhMa413(nam,company,finance_book)
+            +tinhMa414(nam,company,finance_book)+tinhMa415(nam,company,finance_book)
+            +tinhMa416(nam,company,finance_book)+tinhMa417(nam,company,finance_book)
+            +tinhMa418(nam,company,finance_book)+tinhMa419(nam,company,finance_book)
+            +tinhMa420(nam,company,finance_book)+tinhMa421a(nam,company,finance_book)
+            +tinhMa421b(nam,company,finance_book)+tinhMa422(nam,company,finance_book)+
+                tinhMa431(nam,company,finance_book)+tinhMa432(nam,company,finance_book))
     else:
-        return 0
-        # if maso == '110':
-        #     if Vitri == 0:
-        #         return      (tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'111%%',company,finance_book) 
-        #                     + tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'112%%',company,finance_book) 
-        #                     + tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'113%%',company,finance_book) 
-        #                     + (tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'12811%%',company,finance_book) 
-        #                     + tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'12881%%',company,finance_book)))
-        #     else:
-        #         return (tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'111%%',company,finance_book) 
-        #                     + tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'112%%',company,finance_book) 
-        #                     + tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'113%%',company,finance_book) 
-        #                     + (tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'12811%%',company,finance_book) 
-        #                     + tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'12881%%',company,finance_book)))
+        if maso == '100':
+            return (tinhMa111_KhacYearly(nam,company,finance_book)+tinhMa112_KhacYearly(nam,company,finance_book)+
+            tinhMa122_KhacYearly(nam,company,finance_book)+tinhMa121_KhacYearly(nam,company,finance_book)
+                                                +tinhMa123_KhacYearly(nam,company,finance_book)+
+            tinhMa131_KhacYearly(nam,company,finance_book)+tinhMa132_KhacYearly(nam,company,finance_book)
+                +tinhMa133_KhacYearly(nam,company,finance_book)+tinhMa134_KhacYearly(nam,company,finance_book)
+                +tinhMa135_KhacYearly(nam,company,finance_book)+tinhMa136_KhacYearly(nam,company,finance_book)
+                +tinhMa137_KhacYearly(nam,company,finance_book)+tinhMa139_KhacYearly(nam,company,finance_book)+
+            tinhMa141_KhacYearly(nam,company,finance_book)+tinhMa419_KhacYearly(nam,company,finance_book)+
+            tinhMa151_KhacYearly(nam,company,finance_book)+tinhMa152_KhacYearly(nam,company,finance_book)
+                +tinhMa153_KhacYearly(nam,company,finance_book)+tinhMa154_KhacYearly(nam,company,finance_book)
+                +tinhMa155_KhacYearly(nam,company,finance_book))
+        elif maso == '110':
+            return tinhMa111_KhacYearly(nam,company,finance_book)+tinhMa112_KhacYearly(nam,company,finance_book)
+        elif maso == '111':
+            return tinhMa111_KhacYearly(nam,company,finance_book)
+        elif maso == '112':
+            return tinhMa112_KhacYearly(nam,company,finance_book)
+        elif maso == '120':
+            return   (tinhMa121_KhacYearly(nam,company,finance_book) + tinhMa122_KhacYearly(nam,company,finance_book) 
+                        + tinhMa123_KhacYearly(nam,company,finance_book))
+        elif maso == '121':
+            return tinhMa121_KhacYearly(nam,company,finance_book)
+        elif maso == '122':
+            return tinhMa122_KhacYearly(nam,company,finance_book)
+        elif maso == '123':
+            return tinhMa123_KhacYearly(nam,company,finance_book)
+        elif maso =='130':
+            return (tinhMa131_KhacYearly(nam,company,finance_book) + tinhMa132_KhacYearly(nam,company,finance_book) 
+                        +tinhMa133_KhacYearly(nam,company,finance_book) + tinhMa134_KhacYearly(nam,company,finance_book) 
+                        + tinhMa135_KhacYearly(nam,company,finance_book) + tinhMa136_KhacYearly(nam,company,finance_book) 
+                        + tinhMa137_KhacYearly(nam,company,finance_book) + tinhMa139_KhacYearly(nam,company,finance_book)
+                    )   
+        elif maso == '131':
+            return tinhMa131_KhacYearly(nam,company,finance_book)
+        elif maso == '132':
+            return tinhMa132_KhacYearly(nam,company,finance_book)
+        elif maso == '133':
+            return tinhMa133_KhacYearly(nam,company,finance_book)
+        elif maso == '134':
+            return tinhMa134_KhacYearly(nam,company,finance_book)
+        elif maso == '135':
+            return tinhMa135_KhacYearly(nam,company,finance_book)
+        elif maso == '136':
+            return tinhMa136_KhacYearly(nam,company,finance_book)
+        elif maso == '137':
+            return tinhMa137_KhacYearly(nam,company,finance_book)
+        elif maso == '139':
+            return tinhMa139_KhacYearly(nam,company,finance_book)
+        elif maso == '140':
+            return (tinhMa141_KhacYearly(nam,company,finance_book) 
+            + tinhMa149_KhacYearly(nam,company,finance_book))
 
-        # elif maso == '111':
-        #     if Vitri == 0:
-        #          return ((tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'111%%',company,finance_book)) 
-        #                 + (tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'112%%',company,finance_book)) 
-        #                 + (tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'113%%',company,finance_book)))
-        #     else:
-        #         return ((tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'111%%',company,finance_book)) 
-        #                 + (tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'112%%',company,finance_book)) 
-        #                 + (tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'113%%',company,finance_book)))
+        elif maso == '141':
+            return tinhMa141_KhacYearly(nam,company,finance_book)
+        elif maso == '149':
+            return tinhMa149_KhacYearly(nam,company,finance_book)
+        elif maso == '150':
+            return (tinhMa151_KhacYearly(nam,company,finance_book) 
+            + tinhMa152_KhacYearly(nam,company,finance_book) 
+                    + tinhMa153_KhacYearly(nam,company,finance_book) 
+                    + tinhMa154_KhacYearly(nam,company,finance_book) 
+                    + tinhMa155_KhacYearly(nam,company,finance_book))
+        elif maso == '151':
+            return tinhMa151_KhacYearly(nam,company,finance_book)
+        elif maso == '152':
+            return tinhMa152_KhacYearly(nam,company,finance_book)
+        elif maso == '153':
+            return tinhMa153_KhacYearly(nam,company,finance_book)
+        elif maso == '154':
+            return tinhMa154_KhacYearly(nam,company,finance_book)
+        elif maso == '155':
+            return tinhMa155_KhacYearly(nam,company,finance_book)
+        elif maso == '200':
+            return (tinhMa211_KhacYearly(nam,company,finance_book)+tinhMa212_KhacYearly(nam,company,finance_book)
+                +tinhMa213_KhacYearly(nam,company,finance_book)+tinhMa214_KhacYearly(nam,company,finance_book)
+                +tinhMa215_KhacYearly(nam,company,finance_book)+tinhMa216_KhacYearly(nam,company,finance_book)
+                +tinhMa219_KhacYearly(nam,company,finance_book)+
+                    tinhMa222_KhacYearly(nam,company,finance_book)+tinhMa223_KhacYearly(nam,company,finance_book)
+                +tinhMa225_KhacYearly(nam,company,finance_book)+tinhMa226_KhacYearly(nam,company,finance_book)
+                +tinhMa229_KhacYearly(nam,company,finance_book)+tinhMa228_KhacYearly(nam,company,finance_book)+
+                    tinhMa231_KhacYearly(nam,company,finance_book)+tinhMa232_KhacYearly(nam,company,finance_book)+
+                    tinhMa241_KhacYearly(nam,company,finance_book)+tinhMa242_KhacYearly(nam,company,finance_book)+
+                    tinhMa251_KhacYearly(nam,company,finance_book)+tinhMa252_KhacYearly(nam,company,finance_book)
+                +tinhMa253_KhacYearly(nam,company,finance_book)+tinhMa254_KhacYearly(nam,company,finance_book)
+                +tinhMa255_KhacYearly(nam,company,finance_book)+
+                    tinhMa261_KhacYearly(nam,company,finance_book)+tinhMa262_KhacYearly(nam,company,finance_book)
+                +tinhMa263_KhacYearly(nam,company,finance_book)+tinhMa268_KhacYearly(nam,company,finance_book))
+        elif maso == '210':
+            return (tinhMa211_KhacYearly(nam,company,finance_book)+tinhMa212_KhacYearly(nam,company,finance_book)
+            +tinhMa213_KhacYearly(nam,company,finance_book)+tinhMa214_KhacYearly(nam,company,finance_book)
+            +tinhMa215_KhacYearly(nam,company,finance_book)+tinhMa216_KhacYearly(nam,company,finance_book)
+            +tinhMa219_KhacYearly(nam,company,finance_book))
+        elif maso == '211':
+            return tinhMa211_KhacYearly(nam,company,finance_book)
+        elif maso == '212':
+            return tinhMa212_KhacYearly(nam,company,finance_book)
+        elif maso == '213':
+            return tinhMa213_KhacYearly(nam,company,finance_book)
+        elif maso == '214':
+            return tinhMa214_KhacYearly(nam,company,finance_book)
+        elif maso == '215':
+            return tinhMa215_KhacYearly(nam,company,finance_book)
+        elif maso == '216':
+            return tinhMa216_KhacYearly(nam,company,finance_book)
+        elif maso == '219':
+            return tinhMa219_KhacYearly(nam,company,finance_book)
+        elif maso == '220':
+            return (tinhMa222_KhacYearly(nam,company,finance_book)
+            +tinhMa223_KhacYearly(nam,company,finance_book)
+            +tinhMa225_KhacYearly(nam,company,finance_book)
+            +tinhMa226_KhacYearly(nam,company,finance_book)
+            +tinhMa229_KhacYearly(nam,company,finance_book)
+            +tinhMa228_KhacYearly(nam,company,finance_book))
 
-        # elif maso == '112':
-        #     if Vitri == 0:
-        #          return (tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'12811%%',company,finance_book) 
-        #             + tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'12881%%',company,finance_book))
-        #     else:
-        #         return (tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'12811%%',company,finance_book) 
-        #                 + tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'12881%%',company,finance_book))
+        elif maso == '221':
+            return (tinhMa222_KhacYearly(nam,company,finance_book)
+            +tinhMa223_KhacYearly(nam,company,finance_book))
+        elif maso == '222':
+            return tinhMa222_KhacYearly(nam,company,finance_book)
+        elif maso == '223':
+            return tinhMa223_KhacYearly(nam,company,finance_book)
+        elif maso == '224':
+            return (tinhMa225_KhacYearly(nam,company,finance_book)
+            +tinhMa226_KhacYearly(nam,company,finance_book))
+        elif maso == '225':
+            return tinhMa225_KhacYearly(nam,company,finance_book)
+        elif maso == '226':
+            return tinhMa226_KhacYearly(nam,company,finance_book)
 
-        # elif maso == '123':
-        #     if Vitri == 0:
-        #         return      (tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'12812%%',company,finance_book) 
-        #                     + tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'12821%%',company,finance_book) 
-        #                     + tinh_No_Yearly_Finance_Book_PostingDate_Opening(nam,'12882%%',company,finance_book))
-        #     else:
-        #         return (tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'12812%%',company,finance_book) 
-        #                     + tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'12821%%',company,finance_book) 
-        #                     + tinh_No_Yearly_Finance_Book_PostingDate_Mid(nam,'12882%%',company,finance_book))
-        # else:
-        #     return 0
+        elif maso == '227':
+            return (tinhMa229_KhacYearly(nam,company,finance_book)
+            +tinhMa228_KhacYearly(nam,company,finance_book))
+        elif maso == '228':
+            return tinhMa228_KhacYearly(nam,company,finance_book)
+        elif maso == '229':
+            return tinhMa229_KhacYearly(nam,company,finance_book)
+        elif maso == '230':
+            return (tinhMa231_KhacYearly(nam,company,finance_book)
+            +tinhMa232_KhacYearly(nam,company,finance_book))
+        elif maso == '231':
+            return tinhMa231_KhacYearly(nam,company,finance_book)
+        elif maso == '232':
+            return tinhMa232_KhacYearly(nam,company,finance_book)
+        elif maso == '240':
+            return (tinhMa241_KhacYearly(nam,company,finance_book)
+            +tinhMa242_KhacYearly(nam,company,finance_book))
+        elif maso == '241':
+            return tinhMa241_KhacYearly(nam,company,finance_book) 
+        elif maso == '242':
+            return tinhMa242_KhacYearly(nam,company,finance_book)
+        elif maso == '250':
+            return (
+                tinhMa251_KhacYearly(nam,company,finance_book)
+                +tinhMa252_KhacYearly(nam,company,finance_book)
+                +tinhMa253_KhacYearly(nam,company,finance_book)
+                +tinhMa254_KhacYearly(nam,company,finance_book)
+                +tinhMa255_KhacYearly(nam,company,finance_book))
+
+        elif maso == '251':
+            return tinhMa251_KhacYearly(nam,company,finance_book)
+        elif maso == '252':
+            return tinhMa252_KhacYearly(nam,company,finance_book)
+        elif maso == '253':
+            return tinhMa253_KhacYearly(nam,company,finance_book)
+        elif maso == '254':
+            return tinhMa254_KhacYearly(nam,company,finance_book)
+        elif maso == '255':
+            return tinhMa255_KhacYearly(nam,company,finance_book)
+        elif maso == '260':
+            return (tinhMa261_KhacYearly(nam,company,finance_book)+tinhMa262_KhacYearly(nam,company,finance_book)
+            +tinhMa263_KhacYearly(nam,company,finance_book)+tinhMa268_KhacYearly(nam,company,finance_book))
+        elif maso == '261':
+            return tinhMa261_KhacYearly(nam,company,finance_book)
+        elif maso == '262':
+            return tinhMa262_KhacYearly(nam,company,finance_book)
+        elif maso == '263':
+            return tinhMa263_KhacYearly(nam,company,finance_book)
+        elif maso == '268':
+            return tinhMa268_KhacYearly(nam,company,finance_book)
+        elif maso == '270':
+            return (tinhMa111_KhacYearly(nam,company,finance_book)+tinhMa112_KhacYearly(nam,company,finance_book)+
+            tinhMa122_KhacYearly(nam,company,finance_book)+tinhMa121_KhacYearly(nam,company,finance_book)
+                                                +tinhMa123_KhacYearly(nam,company,finance_book)+
+            tinhMa131_KhacYearly(nam,company,finance_book)+tinhMa132_KhacYearly(nam,company,finance_book)
+                +tinhMa133_KhacYearly(nam,company,finance_book)+tinhMa134_KhacYearly(nam,company,finance_book)
+                +tinhMa135_KhacYearly(nam,company,finance_book)+tinhMa136_KhacYearly(nam,company,finance_book)
+                +tinhMa137_KhacYearly(nam,company,finance_book)+tinhMa139_KhacYearly(nam,company,finance_book)+
+            tinhMa141_KhacYearly(nam,company,finance_book)+tinhMa149_KhacYearly(nam,company,finance_book)+
+            tinhMa151_KhacYearly(nam,company,finance_book)+tinhMa152_KhacYearly(nam,company,finance_book)
+                +tinhMa153_KhacYearly(nam,company,finance_book)+tinhMa154_KhacYearly(nam,company,finance_book)
+                +tinhMa155_KhacYearly(nam,company,finance_book)+
+                    tinhMa211_KhacYearly(nam,company,finance_book)+tinhMa212_KhacYearly(nam,company,finance_book)
+                +tinhMa213_KhacYearly(nam,company,finance_book)+tinhMa214_KhacYearly(nam,company,finance_book)
+                +tinhMa215_KhacYearly(nam,company,finance_book)+tinhMa216_KhacYearly(nam,company,finance_book)
+                +tinhMa219_KhacYearly(nam,company,finance_book)+
+                    tinhMa222_KhacYearly(nam,company,finance_book)+tinhMa223_KhacYearly(nam,company,finance_book)
+                +tinhMa225_KhacYearly(nam,company,finance_book)+tinhMa226_KhacYearly(nam,company,finance_book)
+                +tinhMa229_KhacYearly(nam,company,finance_book)+tinhMa228_KhacYearly(nam,company,finance_book)+
+                    tinhMa231_KhacYearly(nam,company,finance_book)+tinhMa232_KhacYearly(nam,company,finance_book)+
+                    tinhMa241_KhacYearly(nam,company,finance_book)+tinhMa242_KhacYearly(nam,company,finance_book)+
+                    tinhMa251_KhacYearly(nam,company,finance_book)+tinhMa252_KhacYearly(nam,company,finance_book)
+                +tinhMa253_KhacYearly(nam,company,finance_book)+tinhMa254_KhacYearly(nam,company,finance_book)
+                +tinhMa255_KhacYearly(nam,company,finance_book)+
+                    tinhMa261_KhacYearly(nam,company,finance_book)+tinhMa262_KhacYearly(nam,company,finance_book)
+                +tinhMa263_KhacYearly(nam,company,finance_book)+tinhMa268_KhacYearly(nam,company,finance_book))
+        elif maso == '300':
+            return (tinhMa311_KhacYearly(nam,company,finance_book)+tinhMa312_KhacYearly(nam,company,finance_book)
+            +tinhMa313_KhacYearly(nam,company,finance_book)+tinhMa314_KhacYearly(nam,company,finance_book)
+            +tinhMa315_KhacYearly(nam,company,finance_book)+tinhMa316_KhacYearly(nam,company,finance_book)
+            +tinhMa317_KhacYearly(nam,company,finance_book)+tinhMa318_KhacYearly(nam,company,finance_book)
+            +tinhMa319_KhacYearly(nam,company,finance_book)+tinhMa320_KhacYearly(nam,company,finance_book)
+            +tinhMa321_KhacYearly(nam,company,finance_book)+tinhMa322_KhacYearly(nam,company,finance_book)
+            +tinhMa323_KhacYearly(nam,company,finance_book)+tinhMa324_KhacYearly(nam,company,finance_book)+
+                tinhMa331_KhacYearly(nam,company,finance_book)+tinhMa332_KhacYearly(nam,company,finance_book)
+            +tinhMa333_KhacYearly(nam,company,finance_book)+tinhMa334_KhacYearly(nam,company,finance_book)
+            +tinhMa335_KhacYearly(nam,company,finance_book)+tinhMa336_KhacYearly(nam,company,finance_book)
+            +tinhMa337_KhacYearly(nam,company,finance_book)+tinhMa338_KhacYearly(nam,company,finance_book)
+            +tinhMa339_KhacYearly(nam,company,finance_book)+tinhMa340_KhacYearly(nam,company,finance_book)
+            +tinhMa341_KhacYearly(nam,company,finance_book)+tinhMa342_KhacYearly(nam,company,finance_book)
+            +tinhMa343_KhacYearly(nam,company,finance_book))
+        elif maso == '310':
+            return (tinhMa311_KhacYearly(nam,company,finance_book)+tinhMa312_KhacYearly(nam,company,finance_book)
+            +tinhMa313_KhacYearly(nam,company,finance_book)+tinhMa314_KhacYearly(nam,company,finance_book)
+            +tinhMa315_KhacYearly(nam,company,finance_book)+tinhMa316_KhacYearly(nam,company,finance_book)
+            +tinhMa317_KhacYearly(nam,company,finance_book)+tinhMa318_KhacYearly(nam,company,finance_book)
+            +tinhMa319_KhacYearly(nam,company,finance_book)+tinhMa320_KhacYearly(nam,company,finance_book)
+            +tinhMa321_KhacYearly(nam,company,finance_book)+tinhMa322_KhacYearly(nam,company,finance_book)
+            +tinhMa323_KhacYearly(nam,company,finance_book)+tinhMa324_KhacYearly(nam,company,finance_book))
+
+        elif maso == '311':
+            return tinhMa311_KhacYearly(nam,company,finance_book)
+        elif maso == '312':
+            return tinhMa312_KhacYearly(nam,company,finance_book)
+        elif maso == '313':
+            return tinhMa313_KhacYearly(nam,company,finance_book)
+        elif maso == '314':
+            return tinhMa314_KhacYearly(nam,company,finance_book)
+        elif maso == '315':
+            return tinhMa315_KhacYearly(nam,company,finance_book)
+        elif maso == '316':
+            return tinhMa316_KhacYearly(nam,company,finance_book)
+        elif maso == '317':
+            return tinhMa317_KhacYearly(nam,company,finance_book)
+        elif maso == '318':
+            return tinhMa318_KhacYearly(nam,company,finance_book)
+        elif maso == '319':
+            return tinhMa319_KhacYearly(nam,company,finance_book)
+        elif maso == '320':
+            return tinhMa320_KhacYearly(nam,company,finance_book)
+        elif maso == '321':
+            return tinhMa321_KhacYearly(nam,company,finance_book)
+        elif maso == '322':
+            return tinhMa322_KhacYearly(nam,company,finance_book)
+        elif maso == '323':
+            return tinhMa323_KhacYearly(nam,company,finance_book)
+        elif maso == '324':
+            return tinhMa324_KhacYearly(nam,company,finance_book)
+        elif maso == '330':
+            return (tinhMa331_KhacYearly(nam,company,finance_book)+tinhMa332_KhacYearly(nam,company,finance_book)
+            +tinhMa333_KhacYearly(nam,company,finance_book)+tinhMa334_KhacYearly(nam,company,finance_book)
+            +tinhMa335_KhacYearly(nam,company,finance_book)+tinhMa336_KhacYearly(nam,company,finance_book)
+            +tinhMa337_KhacYearly(nam,company,finance_book)+tinhMa338_KhacYearly(nam,company,finance_book)
+            +tinhMa339_KhacYearly(nam,company,finance_book)+tinhMa340_KhacYearly(nam,company,finance_book)
+            +tinhMa341_KhacYearly(nam,company,finance_book)+tinhMa342_KhacYearly(nam,company,finance_book)
+            +tinhMa343_KhacYearly(nam,company,finance_book))
+        elif maso == '331':
+            return tinhMa331_KhacYearly(nam,company,finance_book)
+        elif maso == '332':
+            return tinhMa332_KhacYearly(nam,company,finance_book)
+        elif maso == '333':
+            return tinhMa333_KhacYearly(nam,company,finance_book)
+        elif maso == '334':
+            return tinhMa334_KhacYearly(nam,company,finance_book)
+        elif maso == '335':
+            return tinhMa335_KhacYearly(nam,company,finance_book)
+        elif maso == '336':
+            return tinhMa336_KhacYearly(nam,company,finance_book)
+        elif maso == '337':
+            return tinhMa337_KhacYearly(nam,company,finance_book)
+        elif maso == '338':
+            return tinhMa338_KhacYearly(nam,company,finance_book)
+        elif maso == '339':
+            return tinhMa339_KhacYearly(nam,company,finance_book)
+        elif maso == '340':
+            return tinhMa340_KhacYearly(nam,company,finance_book)
+        elif maso == '341':
+            return tinhMa341_KhacYearly(nam,company,finance_book)
+        elif maso == '342':
+            return tinhMa342_KhacYearly(nam,company,finance_book)
+        elif maso == '343':
+            return tinhMa343_KhacYearly(nam,company,finance_book)
+        elif maso == '400':
+            return (tinhMa411a_KhacYearly(nam,company,finance_book)+tinhMa411b_KhacYearly(nam,company,finance_book)
+            +tinhMa412_KhacYearly(nam,company,finance_book)+tinhMa413_KhacYearly(nam,company,finance_book)
+            +tinhMa414_KhacYearly(nam,company,finance_book)+tinhMa415_KhacYearly(nam,company,finance_book)
+            +tinhMa416_KhacYearly(nam,company,finance_book)+tinhMa417_KhacYearly(nam,company,finance_book)
+            +tinhMa418_KhacYearly(nam,company,finance_book)+tinhMa419_KhacYearly(nam,company,finance_book)
+            +tinhMa420_KhacYearly(nam,company,finance_book)+tinhMa421a_KhacYearly(nam,company,finance_book)
+            +tinhMa421b_KhacYearly(nam,company,finance_book)+tinhMa422_KhacYearly(nam,company,finance_book)+
+                tinhMa431_KhacYearly(nam,company,finance_book)+tinhMa432_KhacYearly(nam,company,finance_book))
+
+        elif maso == '410':
+            return (tinhMa411a_KhacYearly(nam,company,finance_book)+tinhMa411b_KhacYearly(nam,company,finance_book)
+            +tinhMa412_KhacYearly(nam,company,finance_book)+tinhMa413_KhacYearly(nam,company,finance_book)
+            +tinhMa414_KhacYearly(nam,company,finance_book)+tinhMa415_KhacYearly(nam,company,finance_book)
+            +tinhMa416_KhacYearly(nam,company,finance_book)+tinhMa417_KhacYearly(nam,company,finance_book)
+            +tinhMa418_KhacYearly(nam,company,finance_book)+tinhMa419_KhacYearly(nam,company,finance_book)
+            +tinhMa420_KhacYearly(nam,company,finance_book)+tinhMa421a_KhacYearly(nam,company,finance_book)
+            +tinhMa421b_KhacYearly(nam,company,finance_book)+tinhMa422_KhacYearly(nam,company,finance_book))
+
+        elif maso == '411':
+            return tinhMa411a_KhacYearly(nam,company,finance_book)+tinhMa411b_KhacYearly(nam,company,finance_book)
+        elif maso == '411a':
+            return tinhMa411a_KhacYearly(nam,company,finance_book)
+        elif maso == '411b':
+            return tinhMa411b_KhacYearly(nam,company,finance_book)
+        elif maso == '412':
+            return tinhMa412_KhacYearly(nam,company,finance_book)
+        elif maso == '413':
+            return tinhMa413_KhacYearly(nam,company,finance_book)
+        elif maso == '414':
+            return tinhMa414_KhacYearly(nam,company,finance_book)
+        elif maso == '415':
+            return tinhMa415_KhacYearly(nam,company,finance_book)
+        elif maso == '416':
+            return tinhMa416_KhacYearly(nam,company,finance_book)
+        elif maso == '417':
+            return tinhMa417_KhacYearly(nam,company,finance_book)
+        elif maso == '418':
+            return tinhMa418_KhacYearly(nam,company,finance_book)
+        elif maso == '419':
+            return tinhMa419_KhacYearly(nam,company,finance_book)
+        elif maso == '420':
+            return tinhMa420_KhacYearly(nam,company,finance_book)
+        elif maso == '421':
+            return tinhMa421a_KhacYearly(nam,company,finance_book)
+            +tinhMa421b_KhacYearly(nam,company,finance_book)
+        elif maso == '421a':
+            return tinhMa421a_KhacYearly(nam,company,finance_book)
+        elif maso == '421b':
+            return tinhMa421b_KhacYearly(nam,company,finance_book)
+        elif maso == '422':
+            return tinhMa422_KhacYearly(nam,company,finance_book)
+        elif maso == '430':
+            return tinhMa431_KhacYearly(nam,company,finance_book)+tinhMa432_KhacYearly(nam,company,finance_book)
+        elif maso == '431':
+            return tinhMa431_KhacYearly(nam,company,finance_book)
+        elif maso == '432':
+            return tinhMa432_KhacYearly(nam,company,finance_book)
+        elif maso == '440':
+            return  (tinhMa311_KhacYearly(nam,company,finance_book)+tinhMa312_KhacYearly(nam,company,finance_book)
+            +tinhMa313_KhacYearly(nam,company,finance_book)+tinhMa314_KhacYearly(nam,company,finance_book)
+            +tinhMa315_KhacYearly(nam,company,finance_book)+tinhMa316_KhacYearly(nam,company,finance_book)
+            +tinhMa317_KhacYearly(nam,company,finance_book)+tinhMa318_KhacYearly(nam,company,finance_book)
+            +tinhMa319_KhacYearly(nam,company,finance_book)+tinhMa320_KhacYearly(nam,company,finance_book)
+            +tinhMa321_KhacYearly(nam,company,finance_book)+tinhMa322_KhacYearly(nam,company,finance_book)
+            +tinhMa323_KhacYearly(nam,company,finance_book)+tinhMa324_KhacYearly(nam,company,finance_book)+
+                tinhMa331_KhacYearly(nam,company,finance_book)+tinhMa332_KhacYearly(nam,company,finance_book)
+            +tinhMa333_KhacYearly(nam,company,finance_book)+tinhMa334_KhacYearly(nam,company,finance_book)
+            +tinhMa335_KhacYearly(nam,company,finance_book)+tinhMa336_KhacYearly(nam,company,finance_book)
+            +tinhMa337_KhacYearly(nam,company,finance_book)+tinhMa338_KhacYearly(nam,company,finance_book)
+            +tinhMa339_KhacYearly(nam,company,finance_book)+tinhMa340_KhacYearly(nam,company,finance_book)
+            +tinhMa341_KhacYearly(nam,company,finance_book)+tinhMa342_KhacYearly(nam,company,finance_book)
+            +tinhMa343_KhacYearly(nam,company,finance_book)+
+                    tinhMa411a_KhacYearly(nam,company,finance_book)+tinhMa411b_KhacYearly(nam,company,finance_book)
+            +tinhMa412_KhacYearly(nam,company,finance_book)+tinhMa413_KhacYearly(nam,company,finance_book)
+            +tinhMa414_KhacYearly(nam,company,finance_book)+tinhMa415_KhacYearly(nam,company,finance_book)
+            +tinhMa416_KhacYearly(nam,company,finance_book)+tinhMa417_KhacYearly(nam,company,finance_book)
+            +tinhMa418_KhacYearly(nam,company,finance_book)+tinhMa419_KhacYearly(nam,company,finance_book)
+            +tinhMa420_KhacYearly(nam,company,finance_book)+tinhMa421a_KhacYearly(nam,company,finance_book)
+            +tinhMa421b_KhacYearly(nam,company,finance_book)+tinhMa422_KhacYearly(nam,company,finance_book)+
+                tinhMa431_KhacYearly(nam,company,finance_book)+tinhMa432_KhacYearly(nam,company,finance_book))
+        else:
+            return 0
+def tinhMa111_KhacYearly(nam,company,finance_book):
+    if nam.from_date.month == 1:
+        return ((tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'111%%',company,finance_book)) 
+            + (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'112%%',company,finance_book)) 
+            + (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'113%%',company,finance_book)))
+    else:
+        return ((tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'111%%',company,finance_book)) 
+                + (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'112%%',company,finance_book)) 
+                + (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'113%%',company,finance_book)))
+def tinhMa112_KhacYearly(nam,company,finance_book):
+    if nam.from_date.month == 1:
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'12811%%',company,finance_book) 
+            + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'12881%%',company,finance_book))
+    else:
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'12811%%',company,finance_book) 
+                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'12881%%',company,finance_book))
+def tinhMa121_KhacYearly(nam,company,finance_book):
+    if nam.from_date.month == 1:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'121%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'121%%',company,finance_book)
+def tinhMa122_KhacYearly(nam,company,finance_book):
+    if nam.from_date.month == 1:
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Opening(nam,'2291%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Mid(nam,'2291%%',company,finance_book)
+def tinhMa123_KhacYearly(nam,company,finance_book):
+    if nam.from_date.month == 1:
+        return      (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'12812%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'12821%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'12882%%',company,finance_book))
+    else:
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'12812%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'12821%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'12882%%',company,finance_book))
+def tinhMa131_KhacYearly(nam,company,finance_book):
+    if nam.from_date.month == 1:
+        return tinh_No_Yearly_Finance_Book_Party_Pos_Opening(nam,'1311%',company,finance_book)
+    else:
+        return tinh_No_Yearly_Finance_Book_Party_Pos_Mid(nam,'1311%',company,finance_book)
+
+def tinhMa132_KhacYearly(nam,company,finance_book):
+    if nam.from_date.month == 1:
+        return tinh_No_Yearly_Finance_Book_Party_Pos_Opening(nam,'3311%%',company,finance_book)
+    else:
+        return tinh_No_Yearly_Finance_Book_Party_Pos_Mid(nam,'3311%%',company,finance_book)
+
+def tinhMa133_KhacYearly(nam,company,finance_book):
+    if nam.from_date.month == 1:
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'13621%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'13631%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'13681%%',company,finance_book))
+    else:
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'13621%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'13631%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'13681%%',company,finance_book))
+
+def tinhMa134_KhacYearly(nam,company,finance_book):
+    if nam.from_date.month == 1:
+        return tinh_No_Cua_Yearly_If_Pos_PostingDate_Opening(nam,'337%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'337%%',company,finance_book)
+
+def tinhMa135_KhacYearly(nam, company,finance_book):
+    if nam.from_date.month == 1:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'12831%%',company,finance_book)
+    else:   
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'12831%%',company,finance_book)
+
+def tinhMa136_KhacYearly(nam, company,finance_book):
+    if nam.from_date.month ==1: 
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'1411%%',company,finance_book)
+                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'2441%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'13851%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'13881%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'334%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'3381%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'3382%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'3383%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'3384%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'33851%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'3386%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'33871%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'33881%%',company,finance_book)
+                )
+    else:
+        return  (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'1411%%',company,finance_book)
+                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'2441%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'13851%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'13881%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'334%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'3381%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'3382%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'3383%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'3384%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'33851%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'3386%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'33871%%',company,finance_book)
+                + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'33881%%',company,finance_book)
+                )  
+
+def tinhMa137_KhacYearly(nam, company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Opening(nam,'22931%%',company,finance_book)
+    else:
+        return  tinh_Co_Cua_Yearly_If_Nega_PostingDate_Mid(nam,'22931%%',company,finance_book)
+def tinhMa139_KhacYearly(nam, company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_If_Pos_PostingDate_Opening(nam,'1381%%',company,finance_book)
+    else:
+        return  tinh_No_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'22931%%',company,finance_book)
+def tinhMa141_KhacYearly(nam, company,finance_book):
+    if nam.from_date.month ==1: 
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'151%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'152%%',company,finance_book)
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'155%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'156%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'157%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'158%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'1531%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'1532%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'1533%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'15341%%',company,finance_book)
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'1541%%',company,finance_book) 
+                                )
+    else:
+        return  (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'151%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'152%%',company,finance_book)
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'155%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'156%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'157%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'158%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'1531%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'1532%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'1533%%',company,finance_book) 
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'15341%%',company,finance_book)
+                                + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'1541%%',company,finance_book) 
+                                )
+def tinhMa149_KhacYearly(nam, company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_If_Nega_PostingDate_Opening(nam,'22941%%',company,finance_book)
+    else:
+        return  tinh_No_Cua_Yearly_If_Nega_PostingDate_Mid(nam,'22931%%',company,finance_book)
+def tinhMa151_KhacYearly(nam, company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'2421%%',company,finance_book)
+    else:
+        return  tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'22931%%',company,finance_book)
+def tinhMa152_KhacYearly(nam, company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'133%%',company,finance_book)
+    else:
+        return  tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'22931%%',company,finance_book)
+def tinhMa153_KhacYearly(nam, company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'333%%',company,finance_book) 
+    else:
+        return  tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'22931%%',company,finance_book)
+def tinhMa154_KhacYearly(nam, company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_If_Pos_PostingDate_Opening(nam,'171%%',company,finance_book)
+    else:
+        return  tinh_No_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'22931%%',company,finance_book)
+def tinhMa155_KhacYearly(nam, company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'22881%%',company,finance_book)
+    else:
+        return  tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'22931%%',company,finance_book)
 
 
-        
+def tinhMa211_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Yearly_Finance_Book_Party_Pos_Opening(nam,'1312%%',company,finance_book)
+    else:
+        return  tinh_No_Yearly_Finance_Book_Party_Pos_Mid(nam,'1312%%',company,finance_book)
+def tinhMa212_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Yearly_Finance_Book_Party_Pos_Opening(nam,'3312%%',company,finance_book)
+    else:
+        return  tinh_No_Yearly_Finance_Book_Party_Pos_Mid(nam,'3312%%',company,finance_book)
+def tinhMa213_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'1361%%',company,finance_book)
+    else:
+        return  tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'1361%%',company,finance_book)
+def tinhMa214_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'13622%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'13632%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'13682%%',company,finance_book))
+    else:
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'13622%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'13632%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'13682%%',company,finance_book))
+def tinhMa215_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'12832%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'12832%%',company,finance_book)
+    
+def tinhMa216_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return (tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'13852%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'13882%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'1412%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'2442%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'33852%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'33872%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'33882%%',company,finance_book))
+    else:
+        return (tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'13852%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'13882%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'1412%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'2442%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'33852%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'33872%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'33882%%',company,finance_book))
+    
+def tinhMa219_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_If_Nega_PostingDate_Opening(nam,'22932%%',company,finance_book) 
+    else:
+        return tinh_No_Cua_Yearly_If_Nega_PostingDate_Mid(nam,'22932%%',company,finance_book) 
+    
+def tinhMa222_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'211%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'211%%',company,finance_book)
+    
+def tinhMa223_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Opening(nam,'2141%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Mid(nam,'2141%%',company,finance_book)
+    
+def tinhMa225_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'212%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'212%%',company,finance_book)
+    
+def tinhMa226_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Opening(nam,'2142%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Mid(nam,'2142%%',company,finance_book)
+    
+def tinhMa228_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'213%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'213%%',company,finance_book)
+    
+def tinhMa229_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Opening(nam,'2143%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Mid(nam,'2143%%',company,finance_book)
+    
+def tinhMa231_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'217%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'217%%',company,finance_book)
+    
+def tinhMa232_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Opening(nam,'2147%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Mid(nam,'2147%%',company,finance_book)
+    
+def tinhMa241_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'1542%%',company,finance_book) 
+                + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'22942%%',company,finance_book))
+    else:
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'1542%%',company,finance_book) 
+                + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'22942%%',company,finance_book))
+    
+def tinhMa242_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'241%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'241%%',company,finance_book)
+    
+def tinhMa251_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'221%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'221%%',company,finance_book)
+    
+def tinhMa252_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'222%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'222%%',company,finance_book)
+    
+def tinhMa253_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'2281%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'2281%%',company,finance_book)
+    
+def tinhMa254_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Opening(nam,'2292%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_If_Nega_PostingDate_Mid(nam,'2292%%',company,finance_book)
+    
+def tinhMa255_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'12813%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'12822%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'12883%%',company,finance_book))
+    else:
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'12813%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'12822%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'12883%%',company,finance_book))
+    
+def tinhMa261_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'2422%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'2422%%',company,finance_book)
+    
+def tinhMa262_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'243%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'243%%',company,finance_book)
+    
+def tinhMa263_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'22943%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'15342%%',company,finance_book))
+    else:
+        return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'22943%%',company,finance_book) 
+                    + tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'15342%%',company,finance_book))
+    
+def tinhMa268_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1: 
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'22882%%',company,finance_book)
+    else:
+        return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'22882%%',company,finance_book)
+
+def tinhMa311_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Yearly_Finance_Book_Party_Pos_Opening(nam,'3311%%',company,finance_book)
+    else: 
+        return tinh_Co_Yearly_Finance_Book_Party_Pos_Mid(nam,'3311%%',company,finance_book)
+def tinhMa312_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Yearly_Finance_Book_Party_Pos_Opening(nam,'1311%%',company,finance_book)
+    else:
+         return tinh_Co_Yearly_Finance_Book_Party_Pos_Mid(nam,'1311%%',company,finance_book)
+def tinhMa313_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'333%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'333%%',company,finance_book)
+def tinhMa314_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_If_Pos_PostingDate_Opening(nam,'334%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'334%%',company,finance_book)
+def tinhMa315_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'3351%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'3351%%',company,finance_book)
+def tinhMa316_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'33621%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'33631%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'33681%%',company,finance_book))
+    else:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'33621%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'33631%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'33681%%',company,finance_book))              
+def tinhMa317_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_If_Pos_PostingDate_Opening(nam,'337%%',company,finance_book)
+    else:    
+        return tinh_Co_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'337%%',company,finance_book)
+def tinhMa318_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_If_Pos_PostingDate_Opening(nam,'33871%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'33871%%',company,finance_book)
+def tinhMa319_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return (tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'3381%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'3382%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'3383%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'3384%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'33851%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'3386%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'33881%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'1381%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'13851%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'13881%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'3441%%',company,finance_book))
+    else:
+        return (tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'3381%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'3382%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'3383%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'3384%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'33851%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'3386%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'33881%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'1381%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'13851%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'13881%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'3441%%',company,finance_book))
+def tinhMa320_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return(tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'34111%%',company,finance_book) 
+                        + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'34121%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'343111%%',company,finance_book))
+    else:
+        return(tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'34111%%',company,finance_book) 
+                        + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'34121%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'343111%%',company,finance_book))
+def tinhMa321_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'35211%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'35221%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'35231%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'35241%%',company,finance_book))
+    else:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'35211%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'35221%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'35231%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'35241%%',company,finance_book))
+def tinhMa322_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'353%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'353%%',company,finance_book)
+def tinhMa323_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'357%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'357%%',company,finance_book)  
+def tinhMa324_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_If_Pos_PostingDate_Opening(nam,'171%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'171%%',company,finance_book)
+def tinhMa331_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Yearly_Finance_Book_Party_Pos_Opening(nam,'3312%%',company,finance_book)
+    else:
+        return tinh_Co_Yearly_Finance_Book_Party_Pos_Mid(nam,'3312%%',company,finance_book)
+def tinhMa332_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Yearly_Finance_Book_Party_Pos_Opening(nam,'1312%%',company,finance_book)
+    else:
+        return tinh_Co_Yearly_Finance_Book_Party_Pos_Mid(nam,'1312%%',company,finance_book)
+def tinhMa333_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'3352%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'3352%%',company,finance_book)
+def tinhMa334_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'3361%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'3361%%',company,finance_book)
+def tinhMa335_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'33622%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'33632%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'33682%%',company,finance_book))
+    else:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'33622%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'33632%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'33682%%',company,finance_book))
+def tinhMa336_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_If_Pos_PostingDate_Opening(nam,'33872%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'33872%%',company,finance_book)
+def tinhMa337_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'3442%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'33852%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,'33882%%',company,finance_book))
+    else:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'3442%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'33852%%',company,finance_book) 
+                    + tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,'33882%%',company,finance_book))
+def tinhMa338_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'34112%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'34122%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'343112%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'34312%%',company,finance_book)  
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'34313%%',company,finance_book))
+    else:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'34112%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'34122%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'343112%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'34312%%',company,finance_book)  
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'34313%%',company,finance_book))
+def tinhMa339_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'3432%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'3432%%',company,finance_book)
+def tinhMa340_KhacYearly  (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'411122%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'411122%%',company,finance_book)
+def tinhMa341_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'347%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'347%%',company,finance_book)
+def tinhMa342_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'35212%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'35222%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'35232%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'35242%%',company,finance_book)) 
+    else:
+         return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'35212%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'35222%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'35232%%',company,finance_book) 
+    + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'35242%%',company,finance_book)) 
+def tinhMa343_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'356%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'356%%',company,finance_book)
+
+def tinhMa411a_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Yearly_Finance_Book_Party_Pos_Opening(nam,'41111%%',company,finance_book)
+    else:
+        return tinh_Co_Yearly_Finance_Book_Party_Pos_Mid(nam,'41111%%',company,finance_book)
+def tinhMa411b_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'411121%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'411121%%',company,finance_book)
+def tinhMa412_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'4112%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'4112%%',company,finance_book)
+def tinhMa413_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'4113%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'4113%%',company,finance_book)
+def tinhMa414_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'4118%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'4118%%',company,finance_book)
+def tinhMa415_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'419%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'419%%',company,finance_book)
+def tinhMa416_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'412%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'412%%',company,finance_book)
+def tinhMa417_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'413%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'413%%',company,finance_book)
+def tinhMa418_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'414%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'414%%',company,finance_book)
+def tinhMa419_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+       return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'417%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'417%%',company,finance_book)
+def tinhMa420_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'418%%',company,finance_book)
+    else:   
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'418%%',company,finance_book)
+def tinhMa421a_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'4211%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'4211%%',company,finance_book)
+def tinhMa421b_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'4212%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'4212%%',company,finance_book)
+def tinhMa422_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'441%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'441%%',company,finance_book)
+def tinhMa431_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'461%%',company,finance_book) 
+            + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'161%%',company,finance_book))
+    else:
+        return (tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'461%%',company,finance_book) 
+            + tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'161%%',company,finance_book))
+def tinhMa432_KhacYearly (nam,company,finance_book):
+    if nam.from_date.month ==1:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'466%%',company,finance_book)
+    else:
+        return tinh_Co_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'466%%',company,finance_book)  
+ 

@@ -1196,92 +1196,130 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
 				+tinhMa61(nam,company,finance_book)
 				)
 	else:
-		ketQuaMa1=tinhMa1_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa2=-tinhMa2_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa3=-tinhMa3_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa4=-tinhMa4_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa5=-tinhMa5_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa6=tinhMa6_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa7=-tinhMa7_Khac_Yearly(nam,company,finance_book)
-
-		ketQuaMa21=-tinhMa21_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa22=tinhMa22_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa23=-tinhMa23_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa24=tinhMa24_Khac_Yealy(nam,company,finance_book)
-		ketQuaMa25=-tinhMa25_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa26=tinhMa26_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa27=tinhMa27_Khac_Yearly(nam,company,finance_book)
-
-		ketQuaMa31=tinhMa31_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa32=-tinhMa32_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa33=tinhMa33_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa34=-tinhMa34_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa35=-tinhMa35_Khac_Yearly(nam,company,finance_book)
-		ketQuaMa36=tinhMa36_Khac_Yearly(nam,company,finance_book)
 
 		ketQuaMa60=0
 		if nam.from_date.month==1:
 			ketQuaMa60=-(tinhMa60_Khac_Yearly(nam,['111%%','112%','113%','12811%','12881%'],company,finance_book))
-		ketQuaMa61=tinhMa61_Khac_Yearly(nam,company,finance_book)
 		
 		if maso=='1':		
-			return ketQuaMa1
+			return tinhMa1_Khac_Yearly(nam,company,finance_book)
 		elif maso=='2':
-			return ketQuaMa2
+			return -tinhMa2_Khac_Yearly(nam,company,finance_book)
 		elif maso=='3':
-			return ketQuaMa3
+			return -tinhMa3_Khac_Yearly(nam,company,finance_book)
 		elif maso=='4':
-			return ketQuaMa4
+			return -tinhMa4_Khac_Yearly(nam,company,finance_book)
 		elif maso=='5':
-			return ketQuaMa5
+			return -tinhMa5_Khac_Yearly(nam,company,finance_book)
 		elif maso=='6':
-			return ketQuaMa6
+			return tinhMa6_Khac_Yearly(nam,company,finance_book)
 		elif maso=='7':
-			return ketQuaMa7
+			return -tinhMa7_Khac_Yearly(nam,company,finance_book)
 		elif maso=='20':
-			return ketQuaMa1+ketQuaMa2+ketQuaMa3+ketQuaMa4+ketQuaMa5+ketQuaMa6+ketQuaMa7
+			return (
+				tinhMa1_Khac_Yearly(nam,company,finance_book)
+				-tinhMa2_Khac_Yearly(nam,company,finance_book)
+				-tinhMa3_Khac_Yearly(nam,company,finance_book)
+				-tinhMa4_Khac_Yearly(nam,company,finance_book)
+				-tinhMa5_Khac_Yearly(nam,company,finance_book)
+				+tinhMa6_Khac_Yearly(nam,company,finance_book)
+				-tinhMa7_Khac_Yearly(nam,company,finance_book)
+			)
 		elif maso == '21':
-			return ketQuaMa21		
+			return -tinhMa21_Khac_Yearly(nam,company,finance_book)		
 		elif maso == '22':
-			return ketQuaMa22
+			return tinhMa22_Khac_Yearly(nam,company,finance_book)
 		elif maso == '23':
-			return ketQuaMa23
+			return -tinhMa23_Khac_Yearly(nam,company,finance_book)
 		elif maso == '24':
-			return ketQuaMa24
+			return tinhMa24_Khac_Yealy(nam,company,finance_book)
 		elif maso == '25':
-			return ketQuaMa25
+			return -tinhMa25_Khac_Yearly(nam,company,finance_book)
 		elif maso == '26':
-			return ketQuaMa26
+			return tinhMa26_Khac_Yearly(nam,company,finance_book)
 		elif maso == '27':
-			return ketQuaMa27
+			return tinhMa27_Khac_Yearly(nam,company,finance_book)
 		elif maso == '30':
-			return ketQuaMa21+ketQuaMa22+ketQuaMa23+ketQuaMa24+ketQuaMa25+ketQuaMa26+ketQuaMa27
+			return (
+				-tinhMa21_Khac_Yearly(nam,company,finance_book)
+				+tinhMa22_Khac_Yearly(nam,company,finance_book)
+				-tinhMa23_Khac_Yearly(nam,company,finance_book)
+				+tinhMa24_Khac_Yealy(nam,company,finance_book)
+				-tinhMa25_Khac_Yearly(nam,company,finance_book)
+				+tinhMa26_Khac_Yearly(nam,company,finance_book)
+				+tinhMa27_Khac_Yearly(nam,company,finance_book)
+			)
 		elif maso=='31':
-			return ketQuaMa31
+			return tinhMa31_Khac_Yearly(nam,company,finance_book)
 		elif maso=='32':
-			return ketQuaMa32 
+			return -tinhMa32_Khac_Yearly(nam,company,finance_book) 
 		elif maso=='33':
-			return ketQuaMa33
+			return tinhMa33_Khac_Yearly(nam,company,finance_book)
 		elif maso=='34':
-			return ketQuaMa34 
+			return -tinhMa34_Khac_Yearly(nam,company,finance_book) 
 		elif maso=='35':
-			return ketQuaMa35 
+			return -tinhMa35_Khac_Yearly(nam,company,finance_book) 
 		elif maso=='36':
-			return ketQuaMa36
+			return tinhMa36_Khac_Yearly(nam,company,finance_book)
 		elif maso=='40':
-			return ketQuaMa31+ketQuaMa32+ketQuaMa33+ketQuaMa34+ketQuaMa35+ketQuaMa36
+			return (
+				tinhMa31_Khac_Yearly(nam,company,finance_book)
+				-tinhMa32_Khac_Yearly(nam,company,finance_book)
+				+tinhMa33_Khac_Yearly(nam,company,finance_book)
+				-tinhMa34_Khac_Yearly(nam,company,finance_book)
+				-tinhMa35_Khac_Yearly(nam,company,finance_book)
+				+tinhMa36_Khac_Yearly(nam,company,finance_book)
+			)
 		elif maso =='50':
-			return (ketQuaMa1+ketQuaMa2+ketQuaMa3+ketQuaMa4+ketQuaMa5+ketQuaMa6+ketQuaMa7
-					+ ketQuaMa21+ketQuaMa22+ketQuaMa23+ketQuaMa24+ketQuaMa25+ketQuaMa26+ketQuaMa27
-					+ ketQuaMa31+ketQuaMa32+ketQuaMa33+ketQuaMa34+ketQuaMa35+ketQuaMa36)
+			return (
+				tinhMa1_Khac_Yearly(nam,company,finance_book)
+				-tinhMa2_Khac_Yearly(nam,company,finance_book)
+				-tinhMa3_Khac_Yearly(nam,company,finance_book)
+				-tinhMa4_Khac_Yearly(nam,company,finance_book)
+				-tinhMa5_Khac_Yearly(nam,company,finance_book)
+				+tinhMa6_Khac_Yearly(nam,company,finance_book)
+				-tinhMa7_Khac_Yearly(nam,company,finance_book)
+				-tinhMa21_Khac_Yearly(nam,company,finance_book)
+				+tinhMa22_Khac_Yearly(nam,company,finance_book)
+				-tinhMa23_Khac_Yearly(nam,company,finance_book)
+				+tinhMa24_Khac_Yealy(nam,company,finance_book)
+				-tinhMa25_Khac_Yearly(nam,company,finance_book)
+				+tinhMa26_Khac_Yearly(nam,company,finance_book)
+				+tinhMa27_Khac_Yearly(nam,company,finance_book)
+				+tinhMa31_Khac_Yearly(nam,company,finance_book)
+				-tinhMa32_Khac_Yearly(nam,company,finance_book)
+				+tinhMa33_Khac_Yearly(nam,company,finance_book)
+				-tinhMa34_Khac_Yearly(nam,company,finance_book)
+				-tinhMa35_Khac_Yearly(nam,company,finance_book)
+				+tinhMa36_Khac_Yearly(nam,company,finance_book)
+			)
 		elif maso== '60':
 			return ketQuaMa60
 		elif maso== '61':
-			return ketQuaMa61
+			return tinhMa61_Khac_Yearly(nam,company,finance_book)
 		elif maso== '70':
-			return (ketQuaMa1+ketQuaMa2+ketQuaMa3+ketQuaMa4+ketQuaMa5+ketQuaMa6+ketQuaMa7
-					+ ketQuaMa21+ketQuaMa22+ketQuaMa23+ketQuaMa24+ketQuaMa25+ketQuaMa26+ketQuaMa27
-					+ ketQuaMa31+ketQuaMa32+ketQuaMa33+ketQuaMa34+ketQuaMa35+ketQuaMa36
-					+ketQuaMa60+ketQuaMa61
+			return (
+				tinhMa1_Khac_Yearly(nam,company,finance_book)
+				-tinhMa2_Khac_Yearly(nam,company,finance_book)
+				-tinhMa3_Khac_Yearly(nam,company,finance_book)
+				-tinhMa4_Khac_Yearly(nam,company,finance_book)
+				-tinhMa5_Khac_Yearly(nam,company,finance_book)
+				+tinhMa6_Khac_Yearly(nam,company,finance_book)
+				-tinhMa7_Khac_Yearly(nam,company,finance_book)
+				-tinhMa21_Khac_Yearly(nam,company,finance_book)
+				+tinhMa22_Khac_Yearly(nam,company,finance_book)
+				-tinhMa23_Khac_Yearly(nam,company,finance_book)
+				+tinhMa24_Khac_Yealy(nam,company,finance_book)
+				-tinhMa25_Khac_Yearly(nam,company,finance_book)
+				+tinhMa26_Khac_Yearly(nam,company,finance_book)
+				+tinhMa27_Khac_Yearly(nam,company,finance_book)
+				+tinhMa31_Khac_Yearly(nam,company,finance_book)
+				-tinhMa32_Khac_Yearly(nam,company,finance_book)
+				+tinhMa33_Khac_Yearly(nam,company,finance_book)
+				-tinhMa34_Khac_Yearly(nam,company,finance_book)
+				-tinhMa35_Khac_Yearly(nam,company,finance_book)
+				+tinhMa36_Khac_Yearly(nam,company,finance_book)
+				+ketQuaMa60
+				+tinhMa61_Khac_Yearly(nam,company,finance_book)
 					)
 		
