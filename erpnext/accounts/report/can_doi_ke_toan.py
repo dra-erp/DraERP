@@ -365,7 +365,7 @@ def tinh_Co_Cua_Yearly_If_Pos(nam,account,company,finance_book):
                 and gle.finance_book=%(finance_book)s
                 and gle.fiscal_year between 2000 AND %(nam)s
             """,test,as_list=True)[0][0],2)      
-    if a > 0:
+    if a+b > 0:
         return a + b
     else:
         return 0    
@@ -715,56 +715,90 @@ def tinh_Co_Cua_Yearly_If_Pos_PostingDate_Opening(nam,account,company,finance_bo
             "to_date":nam.to_date,
             "account":account,
             "company":company,
-            "finance_book":finance_book
+            "finance_book":finance_book,
+            "namt":nam.from_date.year
     }
-    a = flt(frappe.db.sql("""
-            select sum(credit)-sum(debit)
-            from `tabGL Entry` as gle
-            where gle.account LIKE %(account)s
-                and gle.company = %(company)s
-                and gle.posting_date<= %(to_date)s
-            """,test,as_list=True)[0][0],2)
-    b = flt(frappe.db.sql("""
-            select sum(credit)-sum(debit) 
-            from `tabGL Entry` as gle
-            where gle.account LIKE %(account)s
-                and gle.company = %(company)s
-                and gle.finance_book=%(finance_book)s
-                and gle.posting_date<= %(to_date)s
-            """,test,as_list=True)[0][0],2)      
-    if a > 0:
-        return a + b
-    else:
-        return 0
+    a = frappe.db.sql("""
+            SELECT 
+		posting_date,fiscal_year,(SUM(credit)-SUM(debit)) AS total
+		from `tabGL Entry`
+		where
+			company=%(company)s
+			AND (account LIKE %(account)s
+				)
+			and is_cancelled = 0
+            and fiscal_year<=%(namt)s
+			GROUP BY ACCOUNT
+            having total>0
+            """,test,as_dict=True)
+    b = frappe.db.sql("""
+    SELECT 
+		posting_date,fiscal_year,(SUM(credit)-SUM(debit)) AS total
+		from `tabGL Entry`
+		where
+			company=%(company)s
+			AND (account LIKE %(account)s
+				)
+            and finance_book=%(finance_book)s
+			and is_cancelled = 0
+			and fiscal_year<=%(namt)s
+			GROUP BY ACCOUNT
+            having total>0
+            """,test,as_dict=True)
+    kq=0
+    for i in a:
+        if(int(i.fiscal_year)<nam.from_date.year or i.posting_date<=nam.to_date):
+            kq+=i.total
+    for i in b:
+        if(int(i.fiscal_year)<nam.from_date.year or i.posting_date<=nam.to_date):
+            kq+=i.total
+    return kq
+
 def tinh_Co_Cua_Yearly_If_Pos_PostingDate_Mid(nam,account,company,finance_book):
     test={
             "from_date":nam.from_date,
             "to_date":nam.to_date,
             "account":account,
             "company":company,
-            "finance_book":finance_book
+            "finance_book":finance_book,
+            "namt":nam.from_date.year
     }
-    a = flt(frappe.db.sql("""
-            select sum(credit)-sum(debit)
-            from `tabGL Entry` as gle
-            where gle.account LIKE %(account)s
-                and gle.company = %(company)s
-                and gle.posting_date>= %(from_date)s
-                and gle.posting_date<= %(to_date)s
-            """,test,as_list=True)[0][0],2)
-    b = flt(frappe.db.sql("""
-            select sum(credit)-sum(debit) 
-            from `tabGL Entry` as gle
-            where gle.account LIKE %(account)s
-                and gle.company = %(company)s
-                and gle.finance_book=%(finance_book)s
-                and gle.posting_date>= %(from_date)s
-                and gle.posting_date<= %(to_date)s
-            """,test,as_list=True)[0][0],2)      
-    if a > 0:
-        return a + b
-    else:
-        return 0   
+    a = frappe.db.sql("""
+            SELECT 
+		posting_date,fiscal_year,(SUM(credit)-SUM(debit)) AS total
+		from `tabGL Entry`
+		where
+			company=%(company)s
+			AND (account LIKE %(account)s
+				)
+			and is_cancelled = 0
+            and fiscal_year<=%(namt)s
+			GROUP BY ACCOUNT
+            having total>0
+            """,test,as_dict=True)
+    b = frappe.db.sql("""
+    SELECT 
+		posting_date,fiscal_year,(SUM(credit)-SUM(debit)) AS total
+		from `tabGL Entry`
+		where
+			company=%(company)s
+			AND (account LIKE %(account)s
+				)
+            and finance_book=%(finance_book)s
+			and is_cancelled = 0
+			and fiscal_year<=%(namt)s
+			GROUP BY ACCOUNT
+            having total>0
+            """,test,as_dict=True)
+    kq=0
+    for i in a:
+        if(int(i.fiscal_year)==nam.from_date.year and i.posting_date>=nam.from_date and i.posting_date<=nam.to_date):
+            kq+=i.total
+    for i in b:
+        if(int(i.fiscal_year)==nam.from_date.year and i.posting_date>=nam.from_date and i.posting_date<=nam.to_date):
+            kq+=i.total
+    return kq
+  
 
 ## Điều kiện Nợ - Có luôn âm có finance_book
 def tinh_No_Cua_Yearly_If_Nega_PostingDate_Opening(nam,account,company,finance_book):
@@ -824,18 +858,20 @@ def tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,account,company,finance_book):
             "to_date":nam.to_date,
             "account":account,
             "company":company,
-            "finance_book":finance_book
+            "finance_book":finance_book,
+            "namt":nam.from_date.year
     }
     a = frappe.db.sql("""
-            select (sum(debit)-sum(credit)) total
+            select posting_date,fiscal_year,(sum(debit)-sum(credit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
-                and gle.posting_date<= %(to_date)s
+                and gle.fiscal_year<= %(namt)s
                 group by Account having total > 0""",test,as_dict=True)  
     ma313 = 0
     for party in a :
-        ma313+=party.total  
+        if(int(party.fiscal_year)<nam.from_date.year or party.posting_date<=nam.to_date):
+            ma313+=party.total  
     return ma313
 def tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,account,company,finance_book):
     test={
@@ -843,20 +879,21 @@ def tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,account,company,finance_book):
             "to_date":nam.to_date,
             "account":account,
             "company":company,
-            "finance_book":finance_book
+            "finance_book":finance_book,
+            "namt":nam.from_date.year
     }
     a = frappe.db.sql("""
-            select (sum(debit)-sum(credit)) total
+            select posting_date,fiscal_year,(sum(debit)-sum(credit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
-                and gle.posting_date>= %(from_date)s
-                and gle.posting_date<= %(to_date)s
+                and gle.fiscal_year<= %(namt)s
                 group by Account having total > 0""",test,as_dict=True)  
     ma313 = 0
     for party in a :
-        ma313+=party.total  
-    return ma313  
+        if(int(party.fiscal_year)==nam.from_date.year and party.posting_date<=nam.to_date and party.posting_date>=nam.from_date):
+            ma313+=party.total  
+    return ma313
 
 def tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,account,company,finance_book):
     test={
@@ -864,18 +901,20 @@ def tinh_Co_Cua_Yearly_If_Pos_ma313_Opening(nam,account,company,finance_book):
             "to_date":nam.to_date,
             "account":account,
             "company":company,
-            "finance_book":finance_book
+            "finance_book":finance_book,
+            "namt":nam.from_date.year
     }
     a = frappe.db.sql("""
-            select (sum(credit)-sum(debit)) total
+            select fiscal_year,posting_date,(sum(credit)-sum(debit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
-                and gle.posting_date<= %(to_date)s
+                and gle.fiscal_year<=%(namt)s
                 group by Account having total > 0""",test,as_dict=True)  
     ma313 = 0
     for party in a :
-        ma313+=party.total  
+        if(int(party.fiscal_year)<nam.from_date.year or party.posting_date<=nam.to_date):
+            ma313+=party.total  
     return ma313
 def tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,account,company,finance_book):
     test={
@@ -883,20 +922,21 @@ def tinh_Co_Cua_Yearly_If_Pos_ma313_Mid(nam,account,company,finance_book):
             "to_date":nam.to_date,
             "account":account,
             "company":company,
-            "finance_book":finance_book
+            "finance_book":finance_book,
+            "namt":nam.from_date.year
     }
     a = frappe.db.sql("""
-            select (sum(credit)-sum(debit)) total
+            select fiscal_year,posting_date,(sum(credit)-sum(debit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
-                and gle.posting_date>= %(from_date)s
-                and gle.posting_date<= %(to_date)s
+                and gle.fiscal_year<=%(namt)s
                 group by Account having total > 0""",test,as_dict=True)  
     ma313 = 0
     for party in a :
-        ma313+=party.total  
-    return ma313 
+        if(int(party.fiscal_year)==nam.from_date.year and party.posting_date<=nam.to_date and party.posting_date>=nam.from_date):
+            ma313+=party.total  
+    return ma313
 
 
 def tinh_Co_Cua_Yearly_If_Nega_PostingDate_Opening(nam,account,company,finance_book):
@@ -958,32 +998,34 @@ def tinh_No_Yearly_Finance_Book_Party_Pos_Opening(nam,account,company,finance_bo
             "to_date":nam.to_date,
             "account":account,
             "company":company,
-            "finance_book":finance_book
+            "finance_book":finance_book,
+            "namt":nam.from_date.year
     }
     list = frappe.db.sql("""
-            select (sum(debit)-sum(credit)) total
+            select posting_date,fiscal_year,(sum(debit)-sum(credit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
                 and gle.finance_book = %(finance_book)s
                 and is_cancelled = 0
-                and gle.posting_date<= %(to_date)s
-                
+                and (gle.fiscal_year between 2000 AND %(namt)s or ifnull(is_opening, 'No') = 'Yes')
                 group by account,party having total > 0""",test,as_dict=True)
     a = frappe.db.sql("""
-            select (sum(debit)-sum(credit)) total
+            select posting_date,fiscal_year,(sum(debit)-sum(credit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
                 and is_cancelled = 0
-                and gle.posting_date<= %(to_date)s
-               
-                group by account,party having total > 0""",test,as_dict=True) 
+                and (gle.fiscal_year between 2000 AND %(namt)s or ifnull(is_opening, 'No') = 'Yes')
+                group by account,party having total > 0""",test,as_dict=True)  
     Prt = 0
+
     for party in list :
-        Prt+=party.total  
+        if(int(party.fiscal_year)<nam.from_date.year or party.posting_date<=nam.to_date):
+            Prt+=party.total 
     for party in a :
-        Prt+=party.total  
+        if(int(party.fiscal_year)<nam.from_date.year or party.posting_date<=nam.to_date):
+            Prt+=party.total   
     return Prt
 def tinh_No_Yearly_Finance_Book_Party_Pos_Mid(nam,account,company,finance_book):
     test={
@@ -991,33 +1033,34 @@ def tinh_No_Yearly_Finance_Book_Party_Pos_Mid(nam,account,company,finance_book):
             "to_date":nam.to_date,
             "account":account,
             "company":company,
-            "finance_book":finance_book
+            "finance_book":finance_book,
+            "namt":nam.from_date.year
     }
     list = frappe.db.sql("""
-            select (sum(debit)-sum(credit)) total
+            select posting_date,fiscal_year,(sum(debit)-sum(credit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
                 and gle.finance_book = %(finance_book)s
                 and is_cancelled = 0
-                and gle.posting_date> %(from_date)s
-                and gle.posting_date<= %(to_date)s
+                and (gle.fiscal_year between 2000 AND %(namt)s or ifnull(is_opening, 'No') = 'Yes')
                 group by account,party having total > 0""",test,as_dict=True)
     a = frappe.db.sql("""
-            select (sum(debit)-sum(credit)) total
+            select posting_date,fiscal_year,(sum(debit)-sum(credit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
                 and is_cancelled = 0
-                and gle.posting_date> %(from_date)s
-                and gle.posting_date<= %(to_date)s
+                and (gle.fiscal_year between 2000 AND %(namt)s or ifnull(is_opening, 'No') = 'Yes')
                 group by account,party having total > 0""",test,as_dict=True)  
     Prt = 0
     for party in list :
-        Prt+=party.total  
+        if(int(party.fiscal_year)==nam.from_date.year and party.posting_date>=nam.from_date and party.posting_date<=nam.to_date ):
+            Prt+=party.total  
     for party in a :
-        Prt+=party.total  
-    return Prt  
+        if(int(party.fiscal_year)==nam.from_date.year and party.posting_date>=nam.from_date and party.posting_date<=nam.to_date ):
+            Prt+=party.total   
+    return Prt
 
 def tinh_Co_Yearly_Finance_Book_Party_Pos_Opening(nam,account,company,finance_book):
     test={
@@ -1025,30 +1068,34 @@ def tinh_Co_Yearly_Finance_Book_Party_Pos_Opening(nam,account,company,finance_bo
             "to_date":nam.to_date,
             "account":account,
             "company":company,
-            "finance_book":finance_book
+            "finance_book":finance_book,
+            "namt":nam.from_date.year
     }
     list = frappe.db.sql("""
-            select (sum(credit)-sum(debit)) total
+            select fiscal_year,posting_date,(sum(credit)-sum(debit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
                 and gle.finance_book = %(finance_book)s
                 and is_cancelled = 0
-                and gle.posting_date<= %(to_date)s
+                and gle.fiscal_year<= %(namt)s
                 group by account,party having total > 0""",test,as_dict=True)
     a = frappe.db.sql("""
-            select (sum(credit)-sum(debit)) total
+            select fiscal_year,posting_date,(sum(credit)-sum(debit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
                 and is_cancelled = 0
-                and gle.posting_date<= %(to_date)s
+                and gle.fiscal_year<= %(namt)s
                 group by account,party having total > 0""",test,as_dict=True) 
     Prt = 0
+
     for party in list :
-        Prt+=party.total  
+        if(int(party.fiscal_year)<nam.from_date.year or party.posting_date<=nam.to_date):
+            Prt+=party.total 
     for party in a :
-        Prt+=party.total  
+        if(int(party.fiscal_year)<nam.from_date.year or party.posting_date<=nam.to_date):
+            Prt+=party.total   
     return Prt
 def tinh_Co_Yearly_Finance_Book_Party_Pos_Mid(nam,account,company,finance_book):
     test={
@@ -1056,32 +1103,34 @@ def tinh_Co_Yearly_Finance_Book_Party_Pos_Mid(nam,account,company,finance_book):
             "to_date":nam.to_date,
             "account":account,
             "company":company,
-            "finance_book":finance_book
+            "finance_book":finance_book,
+            "namt":nam.from_date.year
     }
     list = frappe.db.sql("""
-            select (sum(credit)-sum(debit)) total
+            select fiscal_year,posting_date,(sum(credit)-sum(debit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
                 and gle.finance_book = %(finance_book)s
                 and is_cancelled = 0
-                and gle.posting_date>= %(from_date)s
-                and gle.posting_date<= %(to_date)s
+                and gle.fiscal_year<= %(namt)s
                 group by account,party having total > 0""",test,as_dict=True)
     a = frappe.db.sql("""
-            select (sum(credit)-sum(debit)) total
+            select fiscal_year,posting_date,(sum(credit)-sum(debit)) total
             from `tabGL Entry` as gle
             where gle.account LIKE %(account)s
                 and gle.company = %(company)s
                 and is_cancelled = 0
-                and gle.posting_date>= %(from_date)s
-                and gle.posting_date<= %(to_date)s
-                group by account,party having total > 0""",test,as_dict=True)  
+                and gle.fiscal_year<= %(namt)s
+                group by account,party having total > 0""",test,as_dict=True) 
     Prt = 0
+
     for party in list :
-        Prt+=party.total  
+        if(int(party.fiscal_year)==nam.from_date.year and party.posting_date<=nam.to_date and party.posting_date>=nam.from_date):
+            Prt+=party.total 
     for party in a :
-        Prt+=party.total  
+        if(int(party.fiscal_year)==nam.from_date.year and party.posting_date<=nam.to_date and party.posting_date>=nam.from_date):
+            Prt+=party.total   
     return Prt
 
 def get_accounts():
@@ -1090,33 +1139,19 @@ def get_accounts():
         from `tabBangCanDoiKeToan` order by maso
         """,as_dict=True)
 
-### Lọc dữ liệu theo Company - PostingDate_FinanceBook
-def locTheoCompany_PostingDate_FinanceBook(list,nam,company,fiannce_book):
-    l=[]
-    for i in list:
-        if i.company==company and i.posting_date<=nam.to_date and i.posting_date>=nam.from_date:
-            l.append(i)
-    return l
-
 def get_columns(periodicity, period_list, accumulated_values=1, company=True):
     columns = [{
             "fieldname": "taisan",
-            "label": "Tai San",
+            "label": _("Tài Sản"),
             "fieldtype": "Data",
-            "options": "BanganDoiKeToan",
+            "options": "BangCanDoiKeToan",
             "width": 400
     },{
             "fieldname": "maso",
-            "label": "Ma So",
-            "fieldtype": "Data",
+            "label": "Mã Số",
+            "fieldtype": "Link",
             "options": "BangCanDoiKeToan",
-            "width": 200
-    },{
-            "fieldname": "thuyetminh",
-            "label": "Thuyet Minh",
-            "fieldtype": "Data",
-            "options": "BangCanDoiKeToan",
-            "width": 200
+            "width": 100
     }]
     for period in period_list:
         columns.append({
@@ -1124,7 +1159,7 @@ def get_columns(periodicity, period_list, accumulated_values=1, company=True):
                 "label": period.label,
                 "fieldtype": "Currency",
                 "options": "currency",
-                "width": 150
+                "width": 200
         })
     if periodicity!="Yearly":
         if not accumulated_values:
@@ -1132,7 +1167,7 @@ def get_columns(periodicity, period_list, accumulated_values=1, company=True):
                     "fieldname": "total",
                     "label": _("Total"),
                     "fieldtype": "Currency",
-                    "width": 150
+                    "width": 200
             })
 
     return columns
@@ -1399,7 +1434,7 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
                 +tinhMa133(nam,company,finance_book)+tinhMa134(nam,company,finance_book)
                 +tinhMa135(nam,company,finance_book)+tinhMa136(nam,company,finance_book)
                 +tinhMa137(nam,company,finance_book)+tinhMa139(nam,company,finance_book)+
-            tinhMa141(nam,company,finance_book)+tinhMa419(nam,company,finance_book)+
+            tinhMa141(nam,company,finance_book)+tinhMa149(nam,company,finance_book)+
             tinhMa151(nam,company,finance_book)+tinhMa152(nam,company,finance_book)
                 +tinhMa153(nam,company,finance_book)+tinhMa154(nam,company,finance_book)
                 +tinhMa155(nam,company,finance_book))
@@ -1442,7 +1477,7 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
         elif maso == '139':
             return tinhMa139(nam,company,finance_book)
         elif maso == '140':
-            return tinhMa141(nam,company,finance_book)+tinhMa419(nam,company,finance_book)
+            return tinhMa141(nam,company,finance_book)+tinhMa149(nam,company,finance_book)
         elif maso == '141':
             return tinhMa141(nam,company,finance_book)   
         elif maso == '149':
@@ -1761,7 +1796,7 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
                 +tinhMa133_KhacYearly(nam,company,finance_book)+tinhMa134_KhacYearly(nam,company,finance_book)
                 +tinhMa135_KhacYearly(nam,company,finance_book)+tinhMa136_KhacYearly(nam,company,finance_book)
                 +tinhMa137_KhacYearly(nam,company,finance_book)+tinhMa139_KhacYearly(nam,company,finance_book)+
-            tinhMa141_KhacYearly(nam,company,finance_book)+tinhMa419_KhacYearly(nam,company,finance_book)+
+            tinhMa141_KhacYearly(nam,company,finance_book)+tinhMa149_KhacYearly(nam,company,finance_book)+
             tinhMa151_KhacYearly(nam,company,finance_book)+tinhMa152_KhacYearly(nam,company,finance_book)
                 +tinhMa153_KhacYearly(nam,company,finance_book)+tinhMa154_KhacYearly(nam,company,finance_book)
                 +tinhMa155_KhacYearly(nam,company,finance_book))
@@ -2089,8 +2124,7 @@ def get_giatri(nam,maso,periodicity,company,finance_book):
         elif maso == '420':
             return tinhMa420_KhacYearly(nam,company,finance_book)
         elif maso == '421':
-            return tinhMa421a_KhacYearly(nam,company,finance_book)
-            +tinhMa421b_KhacYearly(nam,company,finance_book)
+            return tinhMa421a_KhacYearly(nam,company,finance_book)+tinhMa421b_KhacYearly(nam,company,finance_book)
         elif maso == '421a':
             return tinhMa421a_KhacYearly(nam,company,finance_book)
         elif maso == '421b':
@@ -2238,7 +2272,7 @@ def tinhMa139_KhacYearly(nam, company,finance_book):
     if nam.from_date.month ==1: 
         return tinh_No_Cua_Yearly_If_Pos_PostingDate_Opening(nam,'1381%%',company,finance_book)
     else:
-        return  tinh_No_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'22931%%',company,finance_book)
+        return  tinh_No_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'1381%%',company,finance_book)
 def tinhMa141_KhacYearly(nam, company,finance_book):
     if nam.from_date.month ==1: 
         return (tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'151%%',company,finance_book) 
@@ -2270,32 +2304,32 @@ def tinhMa149_KhacYearly(nam, company,finance_book):
     if nam.from_date.month ==1: 
         return tinh_No_Cua_Yearly_If_Nega_PostingDate_Opening(nam,'22941%%',company,finance_book)
     else:
-        return  tinh_No_Cua_Yearly_If_Nega_PostingDate_Mid(nam,'22931%%',company,finance_book)
+        return  tinh_No_Cua_Yearly_If_Nega_PostingDate_Mid(nam,'22941%%',company,finance_book)
 def tinhMa151_KhacYearly(nam, company,finance_book):
     if nam.from_date.month ==1: 
         return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'2421%%',company,finance_book)
     else:
-        return  tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'22931%%',company,finance_book)
+        return  tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'2421%%',company,finance_book)
 def tinhMa152_KhacYearly(nam, company,finance_book):
     if nam.from_date.month ==1: 
         return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'133%%',company,finance_book)
     else:
-        return  tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'22931%%',company,finance_book)
+        return  tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'133%%',company,finance_book)
 def tinhMa153_KhacYearly(nam, company,finance_book):
     if nam.from_date.month ==1: 
         return tinh_No_Cua_Yearly_If_Pos_ma313_Opening(nam,'333%%',company,finance_book) 
     else:
-        return  tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'22931%%',company,finance_book)
+        return  tinh_No_Cua_Yearly_If_Pos_ma313_Mid(nam,'333%%',company,finance_book)
 def tinhMa154_KhacYearly(nam, company,finance_book):
     if nam.from_date.month ==1: 
         return tinh_No_Cua_Yearly_If_Pos_PostingDate_Opening(nam,'171%%',company,finance_book)
     else:
-        return  tinh_No_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'22931%%',company,finance_book)
+        return  tinh_No_Cua_Yearly_If_Pos_PostingDate_Mid(nam,'171%%',company,finance_book)
 def tinhMa155_KhacYearly(nam, company,finance_book):
     if nam.from_date.month ==1: 
         return tinh_No_Cua_Yearly_Finance_Book_PostingDate_Opening(nam,'22881%%',company,finance_book)
     else:
-        return  tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'22931%%',company,finance_book)
+        return  tinh_No_Cua_Yearly_Finance_Book_PostingDate_Mid(nam,'22881%%',company,finance_book)
 
 
 def tinhMa211_KhacYearly (nam,company,finance_book):

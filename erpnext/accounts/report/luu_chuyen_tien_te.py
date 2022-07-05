@@ -369,13 +369,13 @@ def get_accounts():
 def get_columns(periodicity, period_list, accumulated_values=1, company=None):
 	columns = [{
 		"fieldname": "chi_tieu",
-		"label": "Chi Tieu",
+		"label": "Chi Tiêu",
 		"fieldtype": "Data",
 		"options": "Bang Luu Chuyen Tien Te",
 		"width": 400
 	},{
 		"fieldname": "ma_so",
-		"label": "Ma So",
+		"label": "Mã Số",
 		"fieldtype": "Data",
 		"options": "Bang Luu Chuyen Tien Te",
 		"width": 100
@@ -387,7 +387,7 @@ def get_columns(periodicity, period_list, accumulated_values=1, company=None):
 			"label": period.label,
 			"fieldtype": "Currency",
 			"options": "currency",
-			"width": 250
+			"width": 200
 		})
 	if periodicity!="Yearly":
 		if not accumulated_values:
@@ -395,7 +395,7 @@ def get_columns(periodicity, period_list, accumulated_values=1, company=None):
 				"fieldname": "total",
 				"label": _("Total"),
 				"fieldtype": "Currency",
-				"width": 150
+				"width": 200
 			})
 
 	return columns
@@ -1069,12 +1069,11 @@ def tinhMa36_Khac_Yearly(nam,company,finance_book):
 	listTKCo=['4211','4212','338813','338823']
 	ketQuaMa36=tinhKetQuaBenNo_Khac_Yearly(account,against,listTKNo,listTKCo,nam,company,finance_book)
 	return ketQuaMa36
-
+	
 def get_giatri(nam,maso,periodicity,company,finance_book):
 	if periodicity=="Yearly":		
 
 		nam=nam.label
-
 
 		if maso=='1':		
 			return tinhMa1(nam,company,finance_book)
